@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Team Balance Icon - People with alignment indicator -->
+  
+  <!-- Person 1 (left) -->
+  <circle cx="16" cy="20" r="8" stroke="#0d9488" stroke-width="2" fill="none"/>
+  <path d="M8 44 C8 34 24 34 24 44" stroke="#0d9488" stroke-width="2" fill="none"/>
+  
+  <!-- Person 2 (center) -->
+  <circle cx="32" cy="16" r="8" stroke="#0d9488" stroke-width="2" fill="none"/>
+  <path d="M24 40 C24 30 40 30 40 40" stroke="#0d9488" stroke-width="2" fill="none"/>
+  
+  <!-- Person 3 (right) -->
+  <circle cx="48" cy="20" r="8" stroke="#0d9488" stroke-width="2" fill="none"/>
+  <path d="M40 44 C40 34 56 34 56 44" stroke="#0d9488" stroke-width="2" fill="none"/>
+  
+  <!-- Balance/alignment lines at bottom -->
+  <line x1="10" y1="52" x2="54" y2="52" stroke="#0d9488" stroke-width="2" stroke-linecap="round"/>
+  <line x1="14" y1="58" x2="50" y2="58" stroke="#0d9488" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+  
+  <!-- Checkmark indicating balance achieved -->
+  <path d="M28 52 L31 55 L38 48" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

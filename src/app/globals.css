@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Radial gradient utility */
+  .bg-gradient-radial {
+    background: radial-gradient(circle, var(--tw-gradient-stops));
+  }
+}
+
+/* 
+  ClockAlign "Forest Sunset" Theme
+  Primary: Deep Teal (Professional, Calm, Global)
+  Accent: Coral/Warm (Energy, Sun, Time)
+*/
+@layer base {
+  :root {
+    /* Background: Clean White */
+    --background: 0 0% 100%;
+    --foreground: 175 40% 10%; /* Very dark teal-gray */
+    
+    /* Card: White */
+    --card: 0 0% 100%;
+    --card-foreground: 175 40% 10%;
+    
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 175 40% 10%;
+    
+    /* Primary: Deep Teal */
+    --primary: 176 61% 19%; /* Teal 900-ish */
+    --primary-foreground: 170 30% 96%;
+    
+    /* Secondary: Warm Sand/Beige for contrast */
+    --secondary: 33 40% 96%;
+    --secondary-foreground: 24 9.8% 10%;
+    
+    /* Muted: Cool Gray */
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+    
+    /* Accent: Coral */
+    --accent: 12 90% 90%; /* Light orange/coral wash */
+    --accent-foreground: 12 80% 40%;
+    
+    /* Destructive */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Border */
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 176 61% 19%; /* Matches Primary */
+    
+    --radius: 0.6rem;
+  }
+  
+  .dark {
+    /* Dark Mode: Deep Jungle/Night */
+    --background: 175 40% 5%; /* Very dark teal-black */
+    --foreground: 0 0% 98%;
+    
+    --card: 175 40% 7%;
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 175 40% 7%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Primary: Brighter Teal for dark mode */
+    --primary: 173 58% 39%; /* Teal 500 */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 175 20% 15%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 175 20% 15%;
+    --muted-foreground: 170 10% 65%;
+    
+    --accent: 175 20% 20%;
+    --accent-foreground: 0 0% 98%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 175 20% 15%;
+    --input: 175 20% 15%;
+    --ring: 173 58% 39%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1, "ss02" 1;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight font-semibold;
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Custom utility classes */
+@layer components {
+  /* Elevated card with subtle border and diffuse shadow */
+  .card-elevated {
+    @apply bg-card/50 backdrop-blur-sm rounded-xl border border-black/5 dark:border-white/10;
+    box-shadow: 
+      0 1px 2px rgba(0,0,0,0.02),
+      0 4px 16px rgba(0,0,0,0.02);
+  }
+  .dark .card-elevated {
+     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  
+  .card-elevated:hover {
+    @apply border-black/10 dark:border-white/20;
+    box-shadow: 
+      0 4px 12px rgba(0,0,0,0.05),
+      0 12px 32px rgba(0,0,0,0.05);
+  }
+
+  /* Teal -> Coral Gradient Text */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-600 via-teal-500 to-coral-500;
+  }
+  .dark .text-gradient {
+      @apply bg-gradient-to-r from-teal-400 via-teal-300 to-orange-400;
+  }
+  
+  /* Primary Button Shine Effect */
+  .btn-shine {
+    @apply relative overflow-hidden bg-primary text-primary-foreground shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] outline-none;
+    box-shadow: 
+        inset 0 1px 0px 0px rgba(255,255,255,0.15), 
+        0 2px 4px rgba(15, 118, 110, 0.2); /* Teal shadow */
+  }
+  .dark .btn-shine {
+    box-shadow: 
+        inset 0 1px 0px 0px rgba(255,255,255,0.1), 
+        0 4px 20px rgba(0,0,0,0.4);
+  }
+}

@@ -1,0 +1,14 @@
+/**
+ * Sign Out Route
+ * Handles logout and redirects to login page
+ */
+import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+
+export async function POST(request: Request) {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  
+  const url = new URL('/login', request.url)
+  return NextResponse.redirect(url)
+}

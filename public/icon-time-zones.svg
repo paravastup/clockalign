@@ -1,0 +1,21 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Time Zones Icon - Globe with clock overlay -->
+  
+  <!-- Globe -->
+  <circle cx="32" cy="32" r="24" stroke="#0d9488" stroke-width="2" fill="none"/>
+  
+  <!-- Globe lines (latitude) -->
+  <ellipse cx="32" cy="32" rx="24" ry="10" stroke="#0d9488" stroke-width="1" fill="none" opacity="0.5"/>
+  <ellipse cx="32" cy="32" rx="24" ry="18" stroke="#0d9488" stroke-width="1" fill="none" opacity="0.3"/>
+  
+  <!-- Globe lines (longitude) -->
+  <ellipse cx="32" cy="32" rx="10" ry="24" stroke="#0d9488" stroke-width="1" fill="none" opacity="0.5"/>
+  <line x1="32" y1="8" x2="32" y2="56" stroke="#0d9488" stroke-width="1" opacity="0.4"/>
+  <line x1="8" y1="32" x2="56" y2="32" stroke="#0d9488" stroke-width="1" opacity="0.4"/>
+  
+  <!-- Small clock overlay (bottom right) -->
+  <circle cx="48" cy="48" r="12" fill="white" stroke="#0d9488" stroke-width="2"/>
+  <line x1="48" y1="48" x2="48" y2="42" stroke="#0d9488" stroke-width="2" stroke-linecap="round"/>
+  <line x1="48" y1="48" x2="53" y2="50" stroke="#0d9488" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="48" cy="48" r="2" fill="#0d9488"/>
+</svg>
