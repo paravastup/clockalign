@@ -26,14 +26,15 @@ interface NavItem {
   href: string
   icon: React.ComponentType<{ className?: string }>
   badge?: string
+  color?: string
 }
 
 const navItems: NavItem[] = [
-  { title: 'Dashboard', href: '/dashboard', icon: Home },
-  { title: 'Meetings', href: '/meetings', icon: Calendar },
-  { title: 'Teams', href: '/teams', icon: Users },
-  { title: 'Fairness', href: '/fairness', icon: BarChart3 },
-  { title: 'Settings', href: '/settings', icon: Settings },
+  { title: 'Dashboard', href: '/dashboard', icon: Home, color: 'teal' },
+  { title: 'Meetings', href: '/meetings', icon: Calendar, color: 'teal' },
+  { title: 'Teams', href: '/teams', icon: Users, color: 'sky' },
+  { title: 'Fairness', href: '/fairness', icon: BarChart3, color: 'amber' },
+  { title: 'Settings', href: '/settings', icon: Settings, color: 'zinc' },
 ]
 
 interface SidebarProps {
@@ -41,32 +42,64 @@ interface SidebarProps {
   onCollapsedChange?: (collapsed: boolean) => void
 }
 
-function NavLink({ 
-  item, 
-  collapsed, 
-  isActive 
-}: { 
+function NavLink({
+  item,
+  collapsed,
+  isActive
+}: {
   item: NavItem
   collapsed: boolean
-  isActive: boolean 
+  isActive: boolean
 }) {
   const Icon = item.icon
+
+  const colorStyles = {
+    teal: {
+      active: 'bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-300',
+      icon: 'text-teal-600 dark:text-teal-400',
+      hover: 'hover:bg-teal-50/50 dark:hover:bg-teal-950/30 hover:text-teal-700 dark:hover:text-teal-300',
+    },
+    sky: {
+      active: 'bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300',
+      icon: 'text-sky-600 dark:text-sky-400',
+      hover: 'hover:bg-sky-50/50 dark:hover:bg-sky-950/30 hover:text-sky-700 dark:hover:text-sky-300',
+    },
+    amber: {
+      active: 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300',
+      icon: 'text-amber-600 dark:text-amber-400',
+      hover: 'hover:bg-amber-50/50 dark:hover:bg-amber-950/30 hover:text-amber-700 dark:hover:text-amber-300',
+    },
+    zinc: {
+      active: 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100',
+      icon: 'text-zinc-600 dark:text-zinc-400',
+      hover: 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-800 dark:hover:text-zinc-200',
+    },
+  }
+
+  const colors = colorStyles[item.color as keyof typeof colorStyles] || colorStyles.teal
 
   const linkContent = (
     <Link
       href={item.href}
       className={cn(
-        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
-        isActive 
-          ? 'bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400' 
-          : 'text-muted-foreground hover:text-foreground hover:bg-accent',
+        'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group',
+        isActive
+          ? colors.active
+          : cn('text-zinc-500 dark:text-zinc-400', colors.hover),
         collapsed && 'justify-center px-2'
       )}
     >
-      <Icon className={cn('h-[18px] w-[18px] shrink-0', isActive && 'text-teal-500')} />
+      <div className={cn(
+        'p-1.5 rounded-lg transition-all duration-200',
+        isActive
+          ? cn('bg-white dark:bg-zinc-900 shadow-sm', colors.icon)
+          : 'bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-white dark:group-hover:bg-zinc-800 group-hover:shadow-sm'
+      )}>
+        <Icon className={cn('h-[16px] w-[16px] shrink-0', isActive ? colors.icon : 'text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300')} />
+      </div>
       {!collapsed && <span>{item.title}</span>}
       {!collapsed && item.badge && (
-        <span className="ml-auto rounded-full bg-teal-500 px-2 py-0.5 text-xs text-white">
+        <span className="ml-auto rounded-full bg-teal-500 px-2 py-0.5 text-xs text-white font-semibold shadow-sm">
           {item.badge}
         </span>
       )}
@@ -107,22 +140,24 @@ export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) 
             'flex h-16 items-center border-b border-border/50 px-4',
             collapsed ? 'justify-center' : 'justify-between'
           )}>
-            <Link href="/dashboard" className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white shadow-md shadow-teal-500/30">
+            <Link href="/dashboard" className="flex items-center gap-2.5 group">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-lg shadow-teal-500/30 group-hover:shadow-teal-500/40 transition-shadow">
                 <Clock className="h-4 w-4" />
               </div>
               {!collapsed && (
-                <span className="text-lg font-semibold tracking-tight">ClockAlign</span>
+                <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-teal-800 to-teal-600 dark:from-teal-200 dark:to-teal-400 bg-clip-text text-transparent">
+                  ClockAlign
+                </span>
               )}
             </Link>
             {!collapsed && onCollapsedChange && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 onClick={() => onCollapsedChange(true)}
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4 text-zinc-400" />
               </Button>
             )}
           </div>
@@ -132,14 +167,16 @@ export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) 
             {collapsed ? (
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <Button size="icon" className="w-full btn-primary-gradient rounded-lg">
-                    <PlusCircle className="h-4 w-4" />
+                  <Button size="icon" className="w-full h-10 rounded-xl btn-primary-gradient shadow-lg shadow-teal-500/25" asChild>
+                    <Link href="/meetings/new">
+                      <PlusCircle className="h-4 w-4" />
+                    </Link>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="right">New Meeting</TooltipContent>
               </Tooltip>
             ) : (
-              <Button className="w-full gap-2 btn-primary-gradient rounded-lg h-10" asChild>
+              <Button className="w-full gap-2 h-11 rounded-xl btn-primary-gradient shadow-lg shadow-teal-500/25 text-white font-semibold" asChild>
                 <Link href="/meetings/new">
                   <PlusCircle className="h-4 w-4" />
                   New Meeting
@@ -164,14 +201,14 @@ export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) 
 
           {/* Collapse Toggle (when collapsed) */}
           {collapsed && onCollapsedChange && (
-            <div className="border-t p-2">
+            <div className="border-t border-border/50 p-2">
               <Button
                 variant="ghost"
                 size="icon"
-                className="w-full"
+                className="w-full h-9 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 onClick={() => onCollapsedChange(false)}
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4 text-zinc-400" />
               </Button>
             </div>
           )}

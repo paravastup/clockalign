@@ -3,49 +3,27 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { DateTime } from 'luxon';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme } from 'next-themes';
 import {
   Search,
   X,
   ChevronLeft,
   ChevronRight,
-  Calendar,
-  Sun,
-  Moon,
-  Clock,
   Share2,
-  Copy,
-  Check,
-  Sparkles,
-  AlertTriangle,
+  Clock,
   Zap,
   Users,
-  Home,
-  Twitter,
-  Linkedin,
+  MessageSquare,
+  BarChart3,
+  Lock,
+  Sun,
+  Moon,
+  Info,
 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import Link from 'next/link';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-
-import {
-  getPainWeight,
-  SacrificeCategory,
-  calculateSacrificeScore,
-} from '@/lib/sacrifice-score';
 import {
   searchCities,
   worldCityToCity,
@@ -72,31 +50,78 @@ interface TimeSlot {
   utcDateTime: DateTime;
 }
 
-interface Selection {
-  startIndex: number;
-  endIndex: number;
+// ============================================
+// ENERGY LEVEL MAPPING
+// ============================================
+
+type EnergyLevel = 'peak' | 'ok' | 'earlyLate' | 'night' | 'sleep';
+
+function getEnergyLevel(hour: number): EnergyLevel {
+  // Peak: 10-16 (10am-4pm)
+  if (hour >= 10 && hour < 16) return 'peak';
+  // OK: 8-10, 16-18 (8am-10am, 4pm-6pm)
+  if ((hour >= 8 && hour < 10) || (hour >= 16 && hour < 18)) return 'ok';
+  // Early/Late: 6-8, 18-21 (6am-8am, 6pm-9pm)
+  if ((hour >= 6 && hour < 8) || (hour >= 18 && hour < 21)) return 'earlyLate';
+  // Night: 21-23, 5-6 (9pm-11pm, 5am-6am)
+  if ((hour >= 21 && hour < 23) || (hour >= 5 && hour < 6)) return 'night';
+  // Sleep: 23-5 (11pm-5am)
+  return 'sleep';
 }
 
-// ============================================
-// COLOR MAPPING
-// ============================================
-
-const CATEGORY_COLORS: Record<SacrificeCategory, { bg: string; text: string; darkBg: string; darkText: string }> = {
-  golden: { bg: 'bg-emerald-100', text: 'text-emerald-800', darkBg: 'dark:bg-emerald-900/50', darkText: 'dark:text-emerald-300' },
-  good: { bg: 'bg-green-100', text: 'text-green-700', darkBg: 'dark:bg-green-900/50', darkText: 'dark:text-green-300' },
-  acceptable: { bg: 'bg-amber-100', text: 'text-amber-700', darkBg: 'dark:bg-amber-900/50', darkText: 'dark:text-amber-300' },
-  early_morning: { bg: 'bg-orange-100', text: 'text-orange-700', darkBg: 'dark:bg-orange-900/50', darkText: 'dark:text-orange-300' },
-  evening: { bg: 'bg-orange-100', text: 'text-orange-700', darkBg: 'dark:bg-orange-900/50', darkText: 'dark:text-orange-300' },
-  late_evening: { bg: 'bg-purple-100', text: 'text-purple-700', darkBg: 'dark:bg-purple-900/50', darkText: 'dark:text-purple-300' },
-  night: { bg: 'bg-indigo-100', text: 'text-indigo-700', darkBg: 'dark:bg-indigo-900/50', darkText: 'dark:text-indigo-300' },
-  late_night: { bg: 'bg-slate-200', text: 'text-slate-700', darkBg: 'dark:bg-slate-800', darkText: 'dark:text-slate-300' },
-  graveyard: { bg: 'bg-slate-300', text: 'text-slate-600', darkBg: 'dark:bg-slate-900', darkText: 'dark:text-slate-400' },
+const ENERGY_COLORS: Record<EnergyLevel, string> = {
+  peak: 'bg-emerald-500',
+  ok: 'bg-lime-500',
+  earlyLate: 'bg-amber-500',
+  night: 'bg-indigo-500',
+  sleep: 'bg-slate-700 dark:bg-slate-700',
 };
 
-function getCategoryStyles(category: SacrificeCategory): string {
-  const colors = CATEGORY_COLORS[category];
-  return cn(colors.bg, colors.text, colors.darkBg, colors.darkText);
-}
+const ENERGY_TEXT_COLORS: Record<EnergyLevel, string> = {
+  peak: 'text-white',
+  ok: 'text-slate-900',
+  earlyLate: 'text-slate-900',
+  night: 'text-white',
+  sleep: 'text-slate-400',
+};
+
+// Light mode overrides for sleep color
+const ENERGY_COLORS_LIGHT: Record<EnergyLevel, string> = {
+  peak: 'bg-emerald-500',
+  ok: 'bg-lime-500',
+  earlyLate: 'bg-amber-500',
+  night: 'bg-indigo-500',
+  sleep: 'bg-slate-300',
+};
+
+const ENERGY_TEXT_COLORS_LIGHT: Record<EnergyLevel, string> = {
+  peak: 'text-white',
+  ok: 'text-slate-900',
+  earlyLate: 'text-slate-900',
+  night: 'text-white',
+  sleep: 'text-slate-600',
+};
+
+// ============================================
+// DEFAULT CITIES
+// ============================================
+
+const DEFAULT_CITIES: City[] = [
+  {
+    id: 'mumbai-india',
+    name: 'Mumbai',
+    country: 'India',
+    timezone: 'Asia/Kolkata',
+    flag: '🇮🇳',
+  },
+  {
+    id: 'philadelphia-usa',
+    name: 'Philadelphia',
+    country: 'United States',
+    timezone: 'America/New_York',
+    flag: '🇺🇸',
+  },
+];
 
 // ============================================
 // HELPER FUNCTIONS
@@ -119,73 +144,78 @@ function generateTimeSlots(date: DateTime): TimeSlot[] {
   return slots;
 }
 
-function formatLocalTime(utcDateTime: DateTime, timezone: string): string {
-  const local = utcDateTime.setZone(timezone);
-  return local.toFormat('h:mm a');
-}
-
 function formatLocalHour(utcDateTime: DateTime, timezone: string): number {
   return utcDateTime.setZone(timezone).hour;
 }
 
-function getSlotCategory(utcDateTime: DateTime, timezone: string): SacrificeCategory {
+function getSlotEnergyLevel(utcDateTime: DateTime, timezone: string): EnergyLevel {
   const localHour = formatLocalHour(utcDateTime, timezone);
-  return getPainWeight(localHour).category;
+  return getEnergyLevel(localHour);
 }
 
-function calculateTotalSacrifice(utcDateTime: DateTime, cities: City[]): number {
-  return cities.reduce((total, city) => {
-    const localHour = formatLocalHour(utcDateTime, city.timezone);
-    const score = calculateSacrificeScore({ localHour });
-    return total + score.points;
-  }, 0);
+function calculateRelativeOffset(timezone: string, referenceTimezone: string = 'UTC'): number {
+  const now = DateTime.now();
+  const targetOffset = now.setZone(timezone).offset;
+  const referenceOffset = now.setZone(referenceTimezone).offset;
+  return (targetOffset - referenceOffset) / 60;
 }
 
-function isGoldenHourForAll(utcDateTime: DateTime, cities: City[]): boolean {
-  return cities.every((city) => {
-    const category = getSlotCategory(utcDateTime, city.timezone);
-    return category === 'golden' || category === 'good';
-  });
+function formatRelativeOffset(offset: number): string {
+  const sign = offset >= 0 ? '+' : '';
+  const absOffset = Math.abs(offset);
+  const hours = Math.floor(absOffset);
+  const minutes = (absOffset - hours) * 60;
+  if (minutes === 0) {
+    return `${sign}${offset}h`;
+  }
+  return `${sign}${Math.floor(offset)}.5h`;
 }
 
-// ============================================
-// BEST SLOT FINDER
-// ============================================
+function checkGoldenOverlap(cities: City[]): { hasOverlap: boolean; spreadHours: number } {
+  if (cities.length < 2) return { hasOverlap: true, spreadHours: 0 };
 
-function findBestMeetingSlot(slots: TimeSlot[], cities: City[]): TimeSlot | null {
-  if (cities.length === 0 || slots.length === 0) return null;
+  // Calculate timezone spread
+  const offsets = cities.map(c => DateTime.now().setZone(c.timezone).offset / 60);
+  const minOffset = Math.min(...offsets);
+  const maxOffset = Math.max(...offsets);
+  const spreadHours = maxOffset - minOffset;
 
-  let bestSlot: TimeSlot | null = null;
-  let lowestSacrifice = Infinity;
+  // Check if there's any hour where all cities have golden/good hours (10am-4pm range)
+  for (let utcHour = 0; utcHour < 24; utcHour++) {
+    const testDateTime = DateTime.utc().set({ hour: utcHour, minute: 0 });
+    const allGolden = cities.every((city) => {
+      const localHour = formatLocalHour(testDateTime, city.timezone);
+      return localHour >= 10 && localHour < 16;
+    });
+    if (allGolden) return { hasOverlap: true, spreadHours };
+  }
+
+  return { hasOverlap: false, spreadHours };
+}
+
+function findBestOverlapSlot(slots: TimeSlot[], cities: City[]): number | null {
+  if (cities.length === 0) return null;
+
+  let bestIndex = 0;
+  let bestScore = -Infinity;
 
   for (const slot of slots) {
-    const totalSacrifice = calculateTotalSacrifice(slot.utcDateTime, cities);
-    if (totalSacrifice < lowestSacrifice) {
-      lowestSacrifice = totalSacrifice;
-      bestSlot = slot;
+    let score = 0;
+    for (const city of cities) {
+      const energy = getSlotEnergyLevel(slot.utcDateTime, city.timezone);
+      if (energy === 'peak') score += 4;
+      else if (energy === 'ok') score += 3;
+      else if (energy === 'earlyLate') score += 2;
+      else if (energy === 'night') score += 1;
+      else score += 0;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestIndex = slot.index;
     }
   }
 
-  return bestSlot;
-}
-
-function findGoldenWindows(slots: TimeSlot[], cities: City[]): TimeSlot[] {
-  return slots.filter((slot) => isGoldenHourForAll(slot.utcDateTime, cities));
-}
-
-function checkOverlapExists(cities: City[]): boolean {
-  if (cities.length < 2) return true;
-
-  // Check if there's any hour where all cities have acceptable times (not graveyard)
-  for (let utcHour = 0; utcHour < 24; utcHour++) {
-    const testDateTime = DateTime.utc().set({ hour: utcHour, minute: 0 });
-    const allAcceptable = cities.every((city) => {
-      const category = getSlotCategory(testDateTime, city.timezone);
-      return category !== 'graveyard' && category !== 'late_night';
-    });
-    if (allAcceptable) return true;
-  }
-  return false;
+  return bestIndex;
 }
 
 // ============================================
@@ -193,76 +223,110 @@ function checkOverlapExists(cities: City[]): boolean {
 // ============================================
 
 export default function FairTimeFinder() {
-  // Theme
-  const { setTheme, resolvedTheme } = useTheme();
+  // State
   const [mounted, setMounted] = useState(false);
-  const isDark = resolvedTheme === 'dark';
-
-  // Cities
   const [cities, setCities] = useState<City[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<WorldCity[]>([]);
-  const [searchOpen, setSearchOpen] = useState(false);
-
-  // Date & Time
+  const [searchFocused, setSearchFocused] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [calendarOpen, setCalendarOpen] = useState(false);
-
-  // Selection
-  const [selection, setSelection] = useState<Selection | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState<number | null>(null);
+  const [use12Hour, setUse12Hour] = useState(true);
   const gridRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Share
-  const [copied, setCopied] = useState(false);
-  const [shareOpen, setShareOpen] = useState(false);
+  // Theme
+  const { setTheme, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   // Memoized values
   const dateTime = useMemo(() => DateTime.fromJSDate(selectedDate), [selectedDate]);
   const timeSlots = useMemo(() => generateTimeSlots(dateTime), [dateTime]);
-  const bestSlot = useMemo(() => findBestMeetingSlot(timeSlots, cities), [timeSlots, cities]);
-  const goldenWindows = useMemo(() => findGoldenWindows(timeSlots, cities), [timeSlots, cities]);
-  const hasOverlap = useMemo(() => checkOverlapExists(cities), [cities]);
+  const overlapInfo = useMemo(() => checkGoldenOverlap(cities), [cities]);
+  const bestSlotIndex = useMemo(() => findBestOverlapSlot(timeSlots, cities), [timeSlots, cities]);
+
+  // Generate week days for date picker
+  const weekDays = useMemo(() => {
+    const days: { date: Date; dayName: string; dayNum: number; isToday: boolean; isSelected: boolean }[] = [];
+    const today = new Date();
+    const selected = DateTime.fromJSDate(selectedDate);
+
+    // Start from 2 days before selected date
+    for (let i = -2; i <= 4; i++) {
+      const d = new Date(selectedDate);
+      d.setDate(d.getDate() + i);
+      const dt = DateTime.fromJSDate(d);
+      days.push({
+        date: d,
+        dayName: dt.toFormat('EEE').toUpperCase(),
+        dayNum: d.getDate(),
+        isToday: dt.hasSame(DateTime.fromJSDate(today), 'day'),
+        isSelected: dt.hasSame(selected, 'day'),
+      });
+    }
+    return days;
+  }, [selectedDate]);
+
+  // Current time position for yellow indicator
+  const currentTimePosition = useMemo(() => {
+    const now = DateTime.now();
+    const isToday = DateTime.fromJSDate(selectedDate).hasSame(now, 'day');
+    if (!isToday) return null;
+
+    // Calculate position based on current hour and minute
+    const totalMinutes = now.hour * 60 + now.minute;
+    const slotWidth = 48; // Each 30-min slot is 48px wide
+    const position = (totalMinutes / 30) * slotWidth;
+    return position;
+  }, [selectedDate]);
 
   // Effects
   useEffect(() => {
     setMounted(true);
-    // Load cities from localStorage
+    // Load cities from localStorage or use defaults
     const saved = localStorage.getItem('clockalign-finder-cities');
     if (saved) {
       try {
-        setCities(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (parsed.length > 0) {
+          setCities(parsed);
+        } else {
+          setCities(DEFAULT_CITIES);
+        }
       } catch {
-        console.error('Failed to load saved cities');
+        setCities(DEFAULT_CITIES);
       }
+    } else {
+      setCities(DEFAULT_CITIES);
     }
   }, []);
 
   useEffect(() => {
-    if (cities.length > 0) {
+    if (mounted && cities.length > 0) {
       localStorage.setItem('clockalign-finder-cities', JSON.stringify(cities));
     }
-  }, [cities]);
+  }, [cities, mounted]);
 
   useEffect(() => {
     if (searchQuery.length >= 2) {
-      const results = searchCities(searchQuery, 8);
+      const results = searchCities(searchQuery, 6);
       setSearchResults(results);
     } else {
       setSearchResults([]);
     }
   }, [searchQuery]);
 
-  // Scroll to current time on initial load
+  // Scroll to current time or best slot on load
   useEffect(() => {
     if (mounted && cities.length > 0 && gridRef.current) {
       const now = DateTime.now();
       const isToday = DateTime.fromJSDate(selectedDate).hasSame(now, 'day');
-      if (isToday) {
-        const currentSlotIndex = now.hour * 2 + (now.minute >= 30 ? 1 : 0);
+
+      if (isToday && currentTimePosition !== null) {
+        const scrollPosition = currentTimePosition - gridRef.current.clientWidth / 2;
+        gridRef.current.scrollTo({ left: Math.max(0, scrollPosition), behavior: 'smooth' });
+      } else if (bestSlotIndex !== null) {
         const slotWidth = 48;
-        const scrollPosition = currentSlotIndex * slotWidth - gridRef.current.clientWidth / 2 + slotWidth / 2;
+        const scrollPosition = bestSlotIndex * slotWidth - gridRef.current.clientWidth / 2;
         gridRef.current.scrollTo({ left: Math.max(0, scrollPosition), behavior: 'smooth' });
       }
     }
@@ -276,146 +340,52 @@ export default function FairTimeFinder() {
       setCities((prev) => [...prev, city]);
     }
     setSearchQuery('');
-    setSearchOpen(false);
+    setSearchFocused(false);
   }, [cities]);
 
   const removeCity = useCallback((cityId: string) => {
     setCities((prev) => prev.filter((c) => c.id !== cityId));
   }, []);
 
-  // Date navigation
-  const goToPreviousDay = () => {
+  // Navigation
+  const goToPreviousWeek = () => {
     setSelectedDate((prev) => {
       const d = new Date(prev);
-      d.setDate(d.getDate() - 1);
+      d.setDate(d.getDate() - 7);
       return d;
     });
   };
 
-  const goToNextDay = () => {
+  const goToNextWeek = () => {
     setSelectedDate((prev) => {
       const d = new Date(prev);
-      d.setDate(d.getDate() + 1);
+      d.setDate(d.getDate() + 7);
       return d;
     });
   };
 
   const goToToday = () => {
     setSelectedDate(new Date());
-    // Scroll to current time after a brief delay to allow render
     setTimeout(() => {
-      if (gridRef.current) {
-        const now = DateTime.now();
-        const currentSlotIndex = now.hour * 2 + (now.minute >= 30 ? 1 : 0);
-        const slotWidth = 48; // w-12 = 3rem = 48px
-        const scrollPosition = currentSlotIndex * slotWidth - gridRef.current.clientWidth / 2 + slotWidth / 2;
+      if (gridRef.current && currentTimePosition !== null) {
+        const scrollPosition = currentTimePosition - gridRef.current.clientWidth / 2;
         gridRef.current.scrollTo({ left: Math.max(0, scrollPosition), behavior: 'smooth' });
       }
     }, 50);
   };
 
-  // Drag selection
-  const handleMouseDown = (index: number) => {
-    setIsDragging(true);
-    setDragStart(index);
-    setSelection({ startIndex: index, endIndex: index });
-  };
-
-  const handleMouseEnter = (index: number) => {
-    if (isDragging && dragStart !== null) {
-      setSelection({
-        startIndex: Math.min(dragStart, index),
-        endIndex: Math.max(dragStart, index),
-      });
+  const scrollToNow = () => {
+    if (gridRef.current && currentTimePosition !== null) {
+      const scrollPosition = currentTimePosition - gridRef.current.clientWidth / 2;
+      gridRef.current.scrollTo({ left: Math.max(0, scrollPosition), behavior: 'smooth' });
     }
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setDragStart(null);
-  };
-
-  useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      if (isDragging) {
-        setIsDragging(false);
-        setDragStart(null);
-      }
-    };
-    window.addEventListener('mouseup', handleGlobalMouseUp);
-    return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
-  }, [isDragging]);
-
-  // Selection helpers
-  const isSlotSelected = (index: number): boolean => {
-    if (!selection) return false;
-    return index >= selection.startIndex && index <= selection.endIndex;
-  };
-
-  const getSelectionDuration = (): number => {
-    if (!selection) return 0;
-    return (selection.endIndex - selection.startIndex + 1) * 30;
-  };
-
-  const getSelectionTimes = (): { city: City; startTime: string; endTime: string }[] => {
-    if (!selection || cities.length === 0) return [];
-    const startSlot = timeSlots[selection.startIndex];
-    const endSlot = timeSlots[selection.endIndex];
-    const endTime = endSlot.utcDateTime.plus({ minutes: 30 });
-
-    return cities.map((city) => ({
-      city,
-      startTime: formatLocalTime(startSlot.utcDateTime, city.timezone),
-      endTime: formatLocalTime(endTime, city.timezone),
-    }));
-  };
-
-  const getSelectionSacrificeScores = (): { city: City; score: number; category: SacrificeCategory }[] => {
-    if (!selection || cities.length === 0) return [];
-    const midIndex = Math.floor((selection.startIndex + selection.endIndex) / 2);
-    const midSlot = timeSlots[midIndex];
-
-    return cities.map((city) => {
-      const localHour = formatLocalHour(midSlot.utcDateTime, city.timezone);
-      const result = calculateSacrificeScore({ localHour, durationMinutes: getSelectionDuration() });
-      return {
-        city,
-        score: result.points,
-        category: result.category,
-      };
-    });
-  };
-
-  // Share functionality
-  const getShareUrl = (): string => {
-    const cityIds = cities.map((c) => c.id).join('-');
-    return `${window.location.origin}/finder/${cityIds}`;
-  };
-
-  const copyShareLink = async () => {
-    await navigator.clipboard.writeText(getShareUrl());
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const shareToTwitter = () => {
-    const text = `Finding fair meeting times across ${cities.length} cities with @ClockAlign`;
-    const url = getShareUrl();
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
-  };
-
-  const shareToLinkedIn = () => {
-    const url = getShareUrl();
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
-  };
-
-  // Jump to best slot
-  const scrollToBestSlot = () => {
-    if (bestSlot && gridRef.current) {
-      const slotWidth = 48; // Approximate slot width
-      const scrollPosition = bestSlot.index * slotWidth - gridRef.current.clientWidth / 2;
-      gridRef.current.scrollTo({ left: scrollPosition, behavior: 'smooth' });
-      setSelection({ startIndex: bestSlot.index, endIndex: bestSlot.index + 1 });
+  const scrollToGolden = () => {
+    if (gridRef.current && bestSlotIndex !== null) {
+      const slotWidth = 48;
+      const scrollPosition = bestSlotIndex * slotWidth - gridRef.current.clientWidth / 2;
+      gridRef.current.scrollTo({ left: Math.max(0, scrollPosition), behavior: 'smooth' });
     }
   };
 
@@ -428,296 +398,340 @@ export default function FairTimeFinder() {
   }
 
   return (
-    <TooltipProvider>
-      <div className="min-h-screen bg-background text-foreground">
-        {/* Header */}
-        <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--purple))] flex items-center justify-center">
-                <Clock className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-semibold hidden sm:inline">ClockAlign</span>
-            </Link>
-
-            {/* Title */}
-            <h1 className="text-lg font-medium">Fair Time Finder</h1>
-
-            {/* Actions */}
-            <div className="flex items-center gap-2">
-              {/* Theme Toggle */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setTheme(isDark ? 'light' : 'dark')}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </Button>
-
-              {/* Share */}
-              <Popover open={shareOpen} onOpenChange={setShareOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" size="icon" disabled={cities.length === 0}>
-                    <Share2 className="w-4 h-4" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-64">
-                  <div className="space-y-3">
-                    <h4 className="font-medium text-sm">Share This Comparison</h4>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        onClick={copyShareLink}
-                      >
-                        {copied ? <Check className="w-4 h-4 mr-1" /> : <Copy className="w-4 h-4 mr-1" />}
-                        {copied ? 'Copied!' : 'Copy Link'}
-                      </Button>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1" onClick={shareToTwitter}>
-                        <Twitter className="w-4 h-4 mr-1" />
-                        Twitter
-                      </Button>
-                      <Button variant="outline" size="sm" className="flex-1" onClick={shareToLinkedIn}>
-                        <Linkedin className="w-4 h-4 mr-1" />
-                        LinkedIn
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-
-              {/* Home */}
-              <Link href="/">
-                <Button variant="ghost" size="icon">
-                  <Home className="w-4 h-4" />
-                </Button>
-              </Link>
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Header */}
+      <header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center">
+              <Clock className="w-4 h-4 text-white" />
             </div>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-          {/* City Search */}
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
-              {/* City Chips */}
-              <AnimatePresence mode="popLayout">
-                {cities.map((city) => (
-                  <motion.div
-                    key={city.id}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    layout
-                  >
-                    <Badge
-                      variant="secondary"
-                      className="pl-3 pr-1 py-1.5 text-sm flex items-center gap-2 bg-card border border-border"
-                    >
-                      <span>{city.flag}</span>
-                      <span className="font-medium">{city.name}</span>
-                      <span className="text-muted-foreground text-xs">
-                        ({DateTime.now().setZone(city.timezone).toFormat('ZZZZ')})
-                      </span>
-                      <button
-                        onClick={() => removeCity(city.id)}
-                        className="ml-1 p-1 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </Badge>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              {/* Search Input */}
-              <Popover open={searchOpen} onOpenChange={setSearchOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="gap-2 text-muted-foreground border-dashed"
-                  >
-                    <Search className="w-4 h-4" />
-                    Add City
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 p-0" align="start">
-                  <Command>
-                    <CommandInput
-                      placeholder="Search cities..."
-                      value={searchQuery}
-                      onValueChange={setSearchQuery}
-                    />
-                    <CommandList>
-                      <CommandEmpty>No cities found.</CommandEmpty>
-                      <CommandGroup heading="Cities">
-                        {searchResults.map((city) => (
-                          <CommandItem
-                            key={`${city.name}-${city.country}`}
-                            onSelect={() => addCity(city)}
-                            className="cursor-pointer"
-                          >
-                            <span className="mr-2">{countryToFlag(city.countryCode)}</span>
-                            <span className="font-medium">{city.name}</span>
-                            <span className="text-muted-foreground ml-1">
-                              {city.country}
-                            </span>
-                            <span className="ml-auto text-xs text-muted-foreground">
-                              {DateTime.now().setZone(city.timezone).toFormat('ZZZZ')}
-                            </span>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+            <div>
+              <span className="font-semibold text-foreground">ClockAlign</span>
+              <span className="text-muted-foreground text-sm ml-2 hidden sm:inline">Fair meeting times</span>
             </div>
-          </div>
+          </Link>
 
-          {/* Date Navigation */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" onClick={goToPreviousDay}>
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="gap-2">
-                    <Calendar className="w-4 h-4" />
-                    {DateTime.fromJSDate(selectedDate).toFormat('EEE, MMM d, yyyy')}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <CalendarComponent
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => {
-                      if (date) {
-                        setSelectedDate(date);
-                        setCalendarOpen(false);
-                      }
-                    }}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              <Button variant="outline" size="icon" onClick={goToNextDay}>
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={goToToday}>
-                Today
-              </Button>
-            </div>
-
-            {/* Quick Actions */}
-            {cities.length >= 2 && (
-              <div className="flex items-center gap-2">
-                {bestSlot && (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={scrollToBestSlot}
-                    className="bg-[hsl(var(--brand))] hover:bg-[hsl(220_90%_50%)]"
-                  >
-                    <Zap className="w-4 h-4 mr-1" />
-                    Find Best Time
-                  </Button>
-                )}
-                {goldenWindows.length > 0 && (
-                  <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
-                    <Sparkles className="w-3 h-3 mr-1" />
-                    {goldenWindows.length} Golden Windows
-                  </Badge>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* No Overlap Warning */}
-          {cities.length >= 2 && !hasOverlap && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="p-4 rounded-lg bg-amber-50 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-800"
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-foreground hover:bg-secondary"
             >
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-medium text-amber-800 dark:text-amber-200">No Good Overlap Found</h4>
-                  <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                    The timezones you selected do not have a reasonable overlap during working hours.
-                    Consider splitting into two meetings or using async communication.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
+              <Share2 className="w-4 h-4 mr-1" />
+              Share
+            </Button>
 
-          {/* Legend */}
-          <div className="flex flex-wrap gap-2 text-xs">
-            <span className="text-muted-foreground">Time quality:</span>
-            {(['golden', 'good', 'acceptable', 'early_morning', 'evening', 'late_evening', 'night', 'graveyard'] as SacrificeCategory[]).map((category) => (
-              <div
-                key={category}
-                className={cn('px-2 py-0.5 rounded', getCategoryStyles(category))}
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(isDark ? 'light' : 'dark')}
+              className="text-muted-foreground hover:text-foreground hover:bg-secondary h-8 w-8"
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={scrollToNow}
+              className="text-muted-foreground hover:text-foreground hover:bg-secondary"
+            >
+              Now
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={scrollToGolden}
+              className="text-emerald-400 hover:text-emerald-300 hover:bg-secondary border border-emerald-500/50"
+            >
+              <Zap className="w-4 h-4 mr-1" />
+              Golden
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setUse12Hour(!use12Hour)}
+              className={cn(
+                "hover:bg-secondary",
+                use12Hour ? "text-amber-400 border border-amber-500/50" : "text-muted-foreground"
+              )}
+            >
+              12h
+            </Button>
+
+            <Link href="/login">
+              <Button
+                size="sm"
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
               >
-                {category.replace('_', ' ')}
-              </div>
-            ))}
+                Sign up free
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+        {/* City Search - Inline Input */}
+        <div className="relative">
+          <div className="flex items-center gap-2 bg-card/50 rounded-lg px-3 py-2 border border-border focus-within:border-muted-foreground/50">
+            <Search className="w-4 h-4 text-muted-foreground" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Add city or timezone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
+              className="bg-transparent border-none outline-none text-foreground placeholder-muted-foreground w-64"
+            />
           </div>
 
-          {/* Time Grid */}
-          {cities.length > 0 ? (
-            <div className="border border-border rounded-lg overflow-hidden bg-card">
-              {/* Hour Labels */}
-              <div
-                ref={gridRef}
-                className="overflow-x-auto scrollbar-hide"
-                onMouseUp={handleMouseUp}
+          {/* Search Dropdown */}
+          <AnimatePresence>
+            {searchFocused && searchResults.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute top-full left-0 mt-1 w-80 bg-card border border-border rounded-lg shadow-xl z-50 overflow-hidden"
               >
-                <div className="min-w-[1200px]">
-                  {/* UTC Hour Row */}
-                  <div className="flex border-b border-border bg-muted/30">
-                    <div className="w-40 flex-shrink-0 px-3 py-2 font-medium text-sm border-r border-border">
-                      UTC Time
+                {searchResults.map((city) => (
+                  <button
+                    key={`${city.name}-${city.country}`}
+                    onClick={() => addCity(city)}
+                    className="w-full px-4 py-2 flex items-center gap-3 hover:bg-muted transition-colors text-left"
+                  >
+                    <span className="text-lg">{countryToFlag(city.countryCode)}</span>
+                    <div className="flex-1">
+                      <span className="text-foreground font-medium">{city.name}</span>
+                      <span className="text-muted-foreground ml-2">{city.country}</span>
                     </div>
-                    <div className="flex">
-                      {timeSlots.map((slot) => (
-                        <div
-                          key={slot.index}
-                          className={cn(
-                            'w-12 flex-shrink-0 text-center py-2 text-xs border-r border-border',
-                            slot.minute === 0 ? 'font-medium' : 'text-muted-foreground'
-                          )}
-                        >
-                          {slot.minute === 0 ? `${slot.hour}:00` : ':30'}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                    <span className="text-muted-foreground text-sm">
+                      {DateTime.now().setZone(city.timezone).toFormat('HH:mm')}
+                    </span>
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-                  {/* City Rows */}
-                  {cities.map((city, cityIndex) => (
+        {/* City Chips */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          <AnimatePresence mode="popLayout">
+            {cities.map((city, index) => {
+              const offset = calculateRelativeOffset(city.timezone, cities[0]?.timezone || 'UTC');
+              const displayOffset = index === 0 ? null : offset;
+
+              return (
+                <motion.div
+                  key={city.id}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  layout
+                  className="flex items-center gap-2 bg-card border border-border rounded-full pl-3 pr-1 py-1"
+                >
+                  <span className="text-sm">{city.flag}</span>
+                  <span className="text-foreground font-medium text-sm">{city.name}</span>
+                  {displayOffset !== null && displayOffset !== 0 && (
+                    <span className="text-emerald-400 text-xs font-medium">
+                      {formatRelativeOffset(displayOffset)}
+                    </span>
+                  )}
+                  <button
+                    onClick={() => removeCity(city.id)}
+                    className="ml-1 p-1 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+
+          <button
+            onClick={() => searchInputRef.current?.focus()}
+            className="text-emerald-400 text-sm hover:text-emerald-300 flex items-center gap-1"
+          >
+            + Add city
+          </button>
+        </div>
+
+        {/* Alert Banner - No Golden Overlap */}
+        {cities.length >= 2 && !overlapInfo.hasOverlap && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between p-3 rounded-lg bg-card border border-border"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <MessageSquare className="w-4 h-4 text-amber-400" />
+              </div>
+              <div>
+                <p className="text-foreground font-medium">No golden overlap possible</p>
+                <p className="text-muted-foreground text-sm">
+                  {overlapInfo.spreadHours.toFixed(1)}h spread is too wide for everyone to be in peak hours
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                size="sm"
+                className="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/50"
+              >
+                Try async instead?
+              </Button>
+              <div className="text-right">
+                <div className="flex items-center gap-1">
+                  <p className="text-amber-400 font-medium">{overlapInfo.spreadHours.toFixed(1)}h</p>
+                  <span title="Timezone spread between all cities">
+                    <Info className="w-3 h-3 text-muted-foreground cursor-help" />
+                  </span>
+                </div>
+                <p className="text-muted-foreground text-xs">spread</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Week Date Picker */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={goToPreviousWeek}
+              className="text-muted-foreground hover:text-foreground hover:bg-secondary h-8 w-8"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+
+            <div className="flex items-center gap-1">
+              {weekDays.map((day, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedDate(day.date)}
+                  className={cn(
+                    "flex flex-col items-center px-3 py-1 rounded-lg transition-colors min-w-[50px]",
+                    day.isSelected
+                      ? "bg-emerald-500 text-white"
+                      : day.isToday
+                      ? "bg-muted text-foreground"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  )}
+                >
+                  <span className="text-xs font-medium">{day.dayName}</span>
+                  <span className="text-sm font-bold">{day.dayNum}</span>
+                </button>
+              ))}
+            </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={goToNextWeek}
+              className="text-muted-foreground hover:text-foreground hover:bg-secondary h-8 w-8"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={goToToday}
+              className="text-muted-foreground hover:text-foreground hover:bg-secondary"
+            >
+              Today
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-muted-foreground/80 hover:bg-secondary flex items-center gap-1"
+            >
+              <Lock className="w-3 h-3" />
+              Unlock Calendar
+            </Button>
+          </div>
+        </div>
+
+        {/* Energy Legend */}
+        <div className="flex items-center gap-4 text-xs">
+          <span className="text-muted-foreground">Energy:</span>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded bg-emerald-500" />
+            <span className="text-muted-foreground">Peak</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded bg-lime-500" />
+            <span className="text-muted-foreground">OK</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded bg-amber-500" />
+            <span className="text-muted-foreground">Early/Late</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded bg-indigo-500" />
+            <span className="text-muted-foreground">Night</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className={cn("w-3 h-3 rounded", isDark ? "bg-slate-700" : "bg-slate-300")} />
+            <span className="text-muted-foreground">Sleep</span>
+          </div>
+        </div>
+
+        {/* Best Overlap Indicator */}
+        {cities.length >= 2 && bestSlotIndex !== null && (
+          <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-1">
+              <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-emerald-400" />
+              <span className="text-emerald-400 font-medium">Best overlap</span>
+            </div>
+          </div>
+        )}
+
+        {/* Time Grid */}
+        {cities.length > 0 ? (
+          <div className="border border-border rounded-lg overflow-hidden bg-card/30">
+            <div
+              ref={gridRef}
+              className="overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-background"
+            >
+              <div className="min-w-[1200px] relative">
+                {/* City Rows */}
+                {cities.map((city, cityIndex) => {
+                  const currentLocalTime = DateTime.now().setZone(city.timezone);
+
+                  return (
                     <div
                       key={city.id}
                       className={cn(
-                        'flex border-b border-border',
-                        cityIndex % 2 === 0 ? 'bg-background' : 'bg-muted/20'
+                        'flex border-b border-border last:border-b-0',
+                        cityIndex % 2 === 0 ? 'bg-card/20' : 'bg-card/40'
                       )}
                     >
                       {/* City Label */}
-                      <div className="w-40 flex-shrink-0 px-3 py-3 border-r border-border">
+                      <div className="w-36 flex-shrink-0 px-3 py-2 border-r border-border bg-card/50">
                         <div className="flex items-center gap-2">
-                          <span>{city.flag}</span>
-                          <div>
-                            <div className="font-medium text-sm">{city.name}</div>
+                          <span className="text-lg">{city.flag}</span>
+                          <div className="min-w-0">
+                            <div className="font-semibold text-foreground text-sm truncate">{city.name}</div>
+                            <div className="font-bold text-lg text-foreground leading-tight">
+                              {currentLocalTime.toFormat(use12Hour ? 'h:mm' : 'HH:mm')}
+                              {use12Hour && <span className="text-sm ml-1">{currentLocalTime.toFormat('a')}</span>}
+                            </div>
                             <div className="text-xs text-muted-foreground">
                               {DateTime.now().setZone(city.timezone).toFormat('ZZZZ')}
                             </div>
@@ -726,227 +740,178 @@ export default function FairTimeFinder() {
                       </div>
 
                       {/* Time Slots */}
-                      <div className="flex">
+                      <div className="flex relative">
                         {timeSlots.map((slot) => {
-                          const category = getSlotCategory(slot.utcDateTime, city.timezone);
-                          const localTime = formatLocalTime(slot.utcDateTime, city.timezone);
-                          const isSelected = isSlotSelected(slot.index);
-                          const isGolden = isGoldenHourForAll(slot.utcDateTime, cities);
+                          const localDateTime = slot.utcDateTime.setZone(city.timezone);
+                          const localHour = localDateTime.hour;
+                          const energy = getSlotEnergyLevel(slot.utcDateTime, city.timezone);
+                          const isBestSlot = slot.index === bestSlotIndex;
+                          const isMidnight = localHour === 0 && slot.minute === 0;
+
+                          // Use theme-appropriate colors for sleep
+                          const bgColor = energy === 'sleep'
+                            ? (isDark ? ENERGY_COLORS[energy] : ENERGY_COLORS_LIGHT[energy])
+                            : ENERGY_COLORS[energy];
+                          const textColor = energy === 'sleep'
+                            ? (isDark ? ENERGY_TEXT_COLORS[energy] : ENERGY_TEXT_COLORS_LIGHT[energy])
+                            : ENERGY_TEXT_COLORS[energy];
 
                           return (
-                            <Tooltip key={slot.index}>
-                              <TooltipTrigger asChild>
-                                <div
-                                  className={cn(
-                                    'w-12 flex-shrink-0 h-10 flex items-center justify-center text-xs cursor-pointer border-r border-border transition-all select-none',
-                                    getCategoryStyles(category),
-                                    isSelected && 'ring-2 ring-inset ring-[hsl(var(--brand))] z-10',
-                                    isGolden && cityIndex === 0 && 'ring-1 ring-emerald-400'
-                                  )}
-                                  onMouseDown={() => handleMouseDown(slot.index)}
-                                  onMouseEnter={() => handleMouseEnter(slot.index)}
-                                >
-                                  {slot.minute === 0 ? (
-                                    <span className="font-medium">
-                                      {formatLocalHour(slot.utcDateTime, city.timezone)}
-                                    </span>
-                                  ) : (
-                                    <span className="text-[10px] opacity-70">:30</span>
-                                  )}
+                            <div
+                              key={slot.index}
+                              className={cn(
+                                'w-12 flex-shrink-0 h-12 flex items-center justify-center text-xs border-r border-border/50 transition-all relative',
+                                bgColor,
+                                textColor,
+                                isBestSlot && cityIndex === 0 && 'ring-2 ring-emerald-400 ring-inset z-10'
+                              )}
+                            >
+                              {/* Date transition marker at midnight */}
+                              {isMidnight && cityIndex === 0 && (
+                                <div className="absolute -top-5 left-0 text-[10px] text-muted-foreground whitespace-nowrap font-medium">
+                                  {localDateTime.toFormat('LLL d')}
                                 </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="font-medium">{city.name}: {localTime}</p>
-                                <p className="text-xs opacity-70">{category.replace('_', ' ')}</p>
-                              </TooltipContent>
-                            </Tooltip>
+                              )}
+
+                              {slot.minute === 0 ? (
+                                <span className="font-semibold">
+                                  {use12Hour ? (
+                                    <>
+                                      {localHour % 12 || 12}
+                                      <span className="text-[10px] opacity-70 ml-0.5">
+                                        {localHour < 12 ? 'AM' : 'PM'}
+                                      </span>
+                                    </>
+                                  ) : (
+                                    `${localHour}:00`
+                                  )}
+                                </span>
+                              ) : (
+                                <span className="opacity-50">:30</span>
+                              )}
+
+                              {/* Best slot indicator on first row */}
+                              {isBestSlot && cityIndex === 0 && (
+                                <div className="absolute -top-2 left-1/2 -translate-x-1/2">
+                                  <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-emerald-400" />
+                                </div>
+                              )}
+                            </div>
                           );
                         })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="border border-dashed border-border rounded-lg p-12 text-center">
-              <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">Add cities to compare</h3>
-              <p className="text-muted-foreground mb-4">
-                Search and add the cities you want to find meeting times for.
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => setSearchOpen(true)}
-                className="gap-2"
-              >
-                <Search className="w-4 h-4" />
-                Add Your First City
-              </Button>
-            </div>
-          )}
 
-          {/* Selection Panel */}
-          <AnimatePresence>
-            {selection && cities.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4"
-              >
-                <div className="bg-card border border-border rounded-xl shadow-elevated p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <Badge variant="secondary" className="bg-[hsl(var(--brand))]/10 text-[hsl(var(--brand))]">
-                        {getSelectionDuration()} min
-                      </Badge>
-                      <span className="text-sm text-muted-foreground">
-                        {DateTime.fromJSDate(selectedDate).toFormat('EEE, MMM d')}
-                      </span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setSelection(null)}
-                      className="h-8 w-8"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {getSelectionTimes().map(({ city, startTime, endTime }) => {
-                      const scoreData = getSelectionSacrificeScores().find((s) => s.city.id === city.id);
-                      return (
-                        <div
-                          key={city.id}
-                          className="flex items-center justify-between p-2 rounded-lg bg-muted/50"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span>{city.flag}</span>
-                            <div>
-                              <div className="font-medium text-sm">{city.name}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {startTime} - {endTime}
-                              </div>
-                            </div>
+                        {/* Current Time Indicator (yellow line) */}
+                        {currentTimePosition !== null && cityIndex === 0 && (
+                          <div
+                            className="absolute top-0 bottom-0 w-0.5 bg-yellow-400 z-20 pointer-events-none"
+                            style={{ left: `${currentTimePosition}px` }}
+                          >
+                            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-yellow-400" />
                           </div>
-                          {scoreData && (
-                            <Badge
-                              variant="secondary"
-                              className={cn('text-xs', getCategoryStyles(scoreData.category))}
-                            >
-                              {scoreData.score.toFixed(1)} pts
-                            </Badge>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Total sacrifice: </span>
-                      <span className="font-medium">
-                        {getSelectionSacrificeScores()
-                          .reduce((sum, s) => sum + s.score, 0)
-                          .toFixed(1)}{' '}
-                        pts
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={copyShareLink}>
-                        <Copy className="w-4 h-4 mr-1" />
-                        Share
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Best Times Summary */}
-          {cities.length >= 2 && bestSlot && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Best Time Card */}
-              <div className="p-4 rounded-lg border border-border bg-card">
-                <div className="flex items-center gap-2 mb-3">
-                  <Zap className="w-5 h-5 text-[hsl(var(--brand))]" />
-                  <h3 className="font-medium">Best Meeting Time</h3>
-                </div>
-                <div className="space-y-2">
-                  {cities.map((city) => {
-                    const localTime = formatLocalTime(bestSlot.utcDateTime, city.timezone);
-                    const category = getSlotCategory(bestSlot.utcDateTime, city.timezone);
-                    return (
-                      <div key={city.id} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span>{city.flag}</span>
-                          <span className="text-sm">{city.name}</span>
-                        </div>
-                        <Badge variant="secondary" className={cn('text-xs', getCategoryStyles(category))}>
-                          {localTime}
-                        </Badge>
+                        )}
+                        {currentTimePosition !== null && cityIndex > 0 && (
+                          <div
+                            className="absolute top-0 bottom-0 w-0.5 bg-yellow-400/50 z-20 pointer-events-none"
+                            style={{ left: `${currentTimePosition}px` }}
+                          />
+                        )}
                       </div>
-                    );
-                  })}
-                </div>
-                <div className="mt-3 pt-3 border-t border-border">
-                  <div className="text-sm text-muted-foreground">
-                    Total sacrifice: {calculateTotalSacrifice(bestSlot.utcDateTime, cities).toFixed(1)} pts
-                  </div>
-                </div>
+                    </div>
+                  );
+                })}
               </div>
-
-              {/* Golden Windows Card */}
-              {goldenWindows.length > 0 && (
-                <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                    <h3 className="font-medium text-emerald-800 dark:text-emerald-200">Golden Windows</h3>
-                  </div>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300 mb-2">
-                    Times when everyone is at their sharpest:
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {goldenWindows.slice(0, 6).map((slot) => (
-                      <Badge
-                        key={slot.index}
-                        variant="secondary"
-                        className="bg-emerald-100 text-emerald-800 dark:bg-emerald-800 dark:text-emerald-200 text-xs"
-                      >
-                        {slot.utcDateTime.toFormat('HH:mm')} UTC
-                      </Badge>
-                    ))}
-                    {goldenWindows.length > 6 && (
-                      <Badge variant="secondary" className="text-xs">
-                        +{goldenWindows.length - 6} more
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </main>
-
-        {/* Footer */}
-        <footer className="border-t border-border mt-12 py-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between text-sm text-muted-foreground">
-            <p>ClockAlign - Fair Meeting Scheduling</p>
-            <div className="flex items-center gap-4">
-              <Link href="/" className="hover:text-foreground transition-colors">
-                Home
-              </Link>
-              <Link href="/login" className="hover:text-foreground transition-colors">
-                Sign In
-              </Link>
             </div>
           </div>
-        </footer>
-      </div>
-    </TooltipProvider>
+        ) : (
+          <div className="border border-dashed border-border rounded-lg p-12 text-center bg-card/20">
+            <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">Add cities to compare</h3>
+            <p className="text-muted-foreground mb-4">
+              Search and add the cities you want to find meeting times for.
+            </p>
+            <Button
+              onClick={() => searchInputRef.current?.focus()}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white"
+            >
+              <Search className="w-4 h-4 mr-2" />
+              Add Your First City
+            </Button>
+          </div>
+        )}
+
+        {/* Features Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 pt-8 border-t border-border">
+          {/* Fairness Leaderboard */}
+          <div className="p-6 rounded-xl bg-card/50 border border-border">
+            <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center mb-4">
+              <BarChart3 className="w-5 h-5 text-amber-400" />
+            </div>
+            <h3 className="font-semibold text-foreground mb-2">Fairness Leaderboard</h3>
+            <p className="text-muted-foreground text-sm">
+              Track who&apos;s sacrificing most. Rotate meeting times so it&apos;s not always the same person waking up early.
+            </p>
+          </div>
+
+          {/* Async Suggestions */}
+          <div className="p-6 rounded-xl bg-card/50 border border-border">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center mb-4">
+              <MessageSquare className="w-5 h-5 text-emerald-400" />
+            </div>
+            <h3 className="font-semibold text-foreground mb-2">Async Suggestions</h3>
+            <p className="text-muted-foreground text-sm">
+              Smart nudges when a Loom or doc would work better. Track hours reclaimed by going async.
+            </p>
+          </div>
+
+          {/* Energy Optimization */}
+          <div className="p-6 rounded-xl bg-card/50 border border-border">
+            <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center mb-4">
+              <Zap className="w-5 h-5 text-indigo-400" />
+            </div>
+            <h3 className="font-semibold text-foreground mb-2">Energy Optimization</h3>
+            <p className="text-muted-foreground text-sm">
+              Find times when everyone is cognitively sharp, not just awake. Based on chronotype research.
+            </p>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            Fair scheduling for your whole team
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            Join 10,000+ remote teams making timezone pain visible and rotating it fairly.
+          </p>
+          <Link href="/login">
+            <Button
+              size="lg"
+              className="bg-emerald-500 hover:bg-emerald-600 text-white px-8"
+            >
+              Get Started Free
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </Link>
+          <p className="text-muted-foreground text-sm mt-3">
+            Free forever for teams up to 5 • No credit card required
+          </p>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-center gap-4 text-sm text-muted-foreground">
+          <span>Made with ❤️ for distributed teams</span>
+          <span>•</span>
+          <Link href="/privacy" className="hover:text-foreground transition-colors">
+            Privacy
+          </Link>
+          <span>•</span>
+          <Link href="/terms" className="hover:text-foreground transition-colors">
+            Terms
+          </Link>
+        </div>
+      </footer>
+    </div>
   );
 }

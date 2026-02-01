@@ -58,17 +58,25 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background via-background to-teal-50/30 dark:to-teal-950/10 p-4">
-      {/* Subtle grid pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0F766E0a_1px,transparent_1px),linear-gradient(to_bottom,#0F766E0a_1px,transparent_1px)] bg-[size:24px_24px]" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-teal-50/20 to-white dark:from-zinc-950 dark:via-teal-950/10 dark:to-zinc-950 p-4 relative overflow-hidden">
+      {/* Ambient background glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-teal-200/30 via-transparent to-transparent dark:from-teal-900/15 blur-3xl pointer-events-none" />
       
-      <Card className="relative w-full max-w-md card-elevated border-border/50">
+      {/* Subtle grid pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0d948808_1px,transparent_1px),linear-gradient(to_bottom,#0d948808_1px,transparent_1px)] bg-[size:32px_32px]" />
+      
+      <Card className="relative w-full max-w-md glass shadow-2xl shadow-teal-900/5 border-teal-100/50 dark:border-teal-800/30">
         <CardHeader className="text-center pb-2">
-          <div className="mx-auto mb-5 w-14 h-14 bg-gradient-to-br from-teal-600 to-teal-700 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-700/20 text-white">
-            <span className="text-2xl">⏰</span>
+          <div className="mx-auto mb-5 w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl flex items-center justify-center shadow-xl shadow-teal-600/25 text-white ring-4 ring-teal-100 dark:ring-teal-900/30">
+            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
           </div>
-          <CardTitle className="text-2xl font-semibold tracking-tight text-teal-950 dark:text-teal-50">Welcome back</CardTitle>
-          <CardDescription className="text-base text-muted-foreground">
+          <CardTitle className="text-2xl font-bold tracking-tight bg-gradient-to-r from-teal-900 to-teal-700 dark:from-teal-100 dark:to-teal-300 bg-clip-text text-transparent">
+            Welcome back
+          </CardTitle>
+          <CardDescription className="text-base text-zinc-500 dark:text-zinc-400 mt-2">
             Sign in to schedule fair meetings
           </CardDescription>
         </CardHeader>
@@ -77,7 +85,7 @@ export default function LoginPage() {
           {/* Google Sign In */}
           <Button 
             variant="outline" 
-            className="w-full h-11 rounded-lg font-medium hover:bg-slate-50 transition-colors border-slate-200" 
+            className="w-full h-12 rounded-xl font-medium bg-white hover:bg-zinc-50 transition-all duration-300 border-zinc-200 hover:border-zinc-300 shadow-sm" 
             onClick={handleGoogleSignIn}
             disabled={loading}
           >
@@ -104,10 +112,10 @@ export default function LoginPage() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-slate-200 dark:border-slate-800" />
+              <span className="w-full border-t border-zinc-200 dark:border-zinc-800" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white dark:bg-slate-950 px-2 text-muted-foreground">
+              <span className="bg-white/80 dark:bg-zinc-950/80 backdrop-blur px-3 text-zinc-400 font-medium tracking-wide">
                 Or continue with email
               </span>
             </div>
@@ -116,7 +124,7 @@ export default function LoginPage() {
           {/* Magic Link Form */}
           <form onSubmit={handleMagicLink} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">Email address</Label>
+              <Label htmlFor="email" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Email address</Label>
               <Input
                 id="email"
                 type="email"
@@ -125,35 +133,58 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
-                className="h-11 rounded-lg border-slate-200 focus:border-teal-500 focus:ring-teal-500"
+                className="h-12 rounded-xl border-zinc-200 dark:border-zinc-700 bg-white/80 dark:bg-zinc-900/80 focus:border-teal-500 focus:ring-teal-500/20 transition-all"
               />
             </div>
             
-            <Button type="submit" variant="shine" className="w-full h-11 rounded-lg btn-primary-gradient bg-teal-700 hover:bg-teal-800" disabled={loading}>
-              {loading ? 'Sending...' : 'Send Magic Link'}
+            <Button 
+              type="submit" 
+              className="w-full h-12 rounded-xl btn-primary-gradient" 
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                  </svg>
+                  Sending...
+                </span>
+              ) : 'Send Magic Link'}
             </Button>
           </form>
 
           {/* Message */}
           {message && (
-            <div className={`p-3 rounded-md text-sm ${
-              message.type === 'error' 
-                ? 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400 border border-rose-100' 
-                : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-100'
+            <div className={`p-4 rounded-xl text-sm ${
+              message.type === 'error'
+                ? 'bg-red-50/80 text-red-700 dark:bg-red-900/20 dark:text-red-300 border border-red-200 dark:border-red-800/50'
+                : 'bg-teal-50/80 text-teal-700 dark:bg-teal-900/20 dark:text-teal-300 border border-teal-200 dark:border-teal-800/50'
             }`}>
-              {message.text}
+              <div className="flex items-center gap-2">
+                {message.type === 'error' ? (
+                  <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ) : (
+                  <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+                {message.text}
+              </div>
             </div>
           )}
         </CardContent>
 
-        <CardFooter className="flex flex-col gap-2 text-center text-sm text-muted-foreground">
+        <CardFooter className="flex flex-col gap-2 text-center text-sm text-zinc-500 dark:text-zinc-400 pt-2">
           <p>
             By continuing, you agree to our{' '}
-            <Link href="/terms" className="underline hover:text-teal-700">
+            <Link href="/terms" className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 font-medium transition-colors">
               Terms of Service
             </Link>{' '}
             and{' '}
-            <Link href="/privacy" className="underline hover:text-teal-700">
+            <Link href="/privacy" className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 font-medium transition-colors">
               Privacy Policy
             </Link>
           </p>

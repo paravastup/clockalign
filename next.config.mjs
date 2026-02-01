@@ -10,6 +10,11 @@ const nextConfig = {
     // Temporarily ignore ESLint errors during build due to eslint-config-next module issue
     ignoreDuringBuilds: true,
   },
+  allowedDevOrigins: [
+    'sparing-semigovernmentally-brandi.ngrok-free.dev',
+    '*.ngrok-free.dev',
+    '*.ngrok.io',
+  ],
   webpack: (config) => {
     config.resolve.alias['@'] = path.join(__dirname, 'src');
     return config;

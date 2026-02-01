@@ -195,8 +195,8 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
       <Card className="card-elevated">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/50">
-              <Bell className="h-5 w-5 text-rose-500" />
+            <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/50">
+              <Bell className="h-5 w-5 text-amber-600" />
             </div>
             <div>
               <CardTitle className="text-lg font-semibold tracking-tight">Notifications</CardTitle>
