@@ -17,6 +17,38 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Visible scrollbar for time grid */
+  .scrollbar-visible {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+  }
+  .scrollbar-visible::-webkit-scrollbar {
+    height: 8px;
+  }
+  .scrollbar-visible::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+  }
+  .scrollbar-visible::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+  .scrollbar-visible::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+  .dark .scrollbar-visible {
+    scrollbar-color: #475569 #1e293b;
+  }
+  .dark .scrollbar-visible::-webkit-scrollbar-track {
+    background: #1e293b;
+  }
+  .dark .scrollbar-visible::-webkit-scrollbar-thumb {
+    background: #475569;
+  }
+  .dark .scrollbar-visible::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
   
   /* Premium font combinations */
   .font-display {
@@ -114,9 +146,9 @@
     
     --radius: 0.6rem;
     
-    /* Brand Colors for Landing Page */
-    --brand: 220 90% 56%;
-    --brand-light: 220 90% 96%;
+    /* Brand Colors for Landing Page - Teal */
+    --brand: 173 58% 39%;
+    --brand-light: 172 60% 95%;
     --success: 150 70% 45%;
     --warning: 38 92% 50%;
     --error: 0 84% 60%;
@@ -194,19 +226,19 @@
       0 12px 32px rgba(0,0,0,0.05);
   }
 
-  /* Gradient Text - Blue to Purple */
+  /* Gradient Text - Teal to Dark Teal */
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(var(--brand)) 0%, hsl(var(--purple)) 100%);
+    background-image: linear-gradient(135deg, hsl(173 58% 39%) 0%, hsl(176 61% 19%) 100%);
   }
-  
+
   /* Hero and Section Gradients */
   .bg-gradient-hero {
-    background: linear-gradient(180deg, hsl(220 90% 98%) 0%, hsl(0 0% 100%) 100%);
+    background: linear-gradient(180deg, hsl(172 60% 97%) 0%, hsl(0 0% 100%) 100%);
   }
-  
+
   .bg-gradient-subtle {
-    background: linear-gradient(180deg, hsl(220 14% 98%) 0%, hsl(0 0% 100%) 100%);
+    background: linear-gradient(180deg, hsl(172 20% 98%) 0%, hsl(0 0% 100%) 100%);
   }
   
   /* Shadows */

@@ -19,7 +19,11 @@ import {
   ChevronRight,
   Clock,
   PlusCircle,
+  Crown,
+  ArrowRight,
 } from 'lucide-react'
+import { useSubscription } from '@/hooks/useSubscription'
+import { SubscriptionBadge } from '@/components/premium-gate'
 
 interface NavItem {
   title: string
@@ -199,6 +203,9 @@ export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) 
             </nav>
           </ScrollArea>
 
+          {/* Upgrade Banner */}
+          <SidebarUpgradeBanner collapsed={collapsed} />
+
           {/* Collapse Toggle (when collapsed) */}
           {collapsed && onCollapsedChange && (
             <div className="border-t border-border/50 p-2">
@@ -215,6 +222,102 @@ export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) 
         </div>
       </aside>
     </TooltipProvider>
+  )
+}
+
+/**
+ * Sidebar Upgrade Banner
+ * Shows upgrade CTA for free users, Pro badge for subscribers
+ */
+function SidebarUpgradeBanner({ collapsed }: { collapsed: boolean }) {
+  const { isPro, isLoading, isTrialing } = useSubscription()
+
+  if (isLoading) {
+    return null
+  }
+
+  if (isPro) {
+    // Show Pro badge for subscribers
+    if (collapsed) {
+      return (
+        <div className="border-t border-border/50 p-2">
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <div className="flex items-center justify-center">
+                <div className="p-1.5 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500">
+                  <Crown className="h-3.5 w-3.5 text-white" />
+                </div>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {isTrialing ? 'Pro Trial' : 'Pro Plan'}
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      )
+    }
+
+    return (
+      <div className="border-t border-border/50 p-3">
+        <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
+          <div className="p-1 rounded-md bg-gradient-to-br from-amber-400 to-orange-500">
+            <Crown className="h-3 w-3 text-white" />
+          </div>
+          <span className="text-xs font-medium text-amber-900 dark:text-amber-100">
+            {isTrialing ? 'Pro Trial' : 'Pro Plan'}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  // Show upgrade CTA for free users
+  if (collapsed) {
+    return (
+      <div className="border-t border-border/50 p-2">
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <Link
+              href="/pricing"
+              className="flex items-center justify-center p-2 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 text-white hover:from-amber-500 hover:to-orange-600 transition-all"
+            >
+              <Crown className="h-4 w-4" />
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            Upgrade to Pro
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    )
+  }
+
+  return (
+    <div className="border-t border-border/50 p-3">
+      <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-800/50 p-3">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="p-1 rounded-md bg-gradient-to-br from-amber-400 to-orange-500">
+            <Crown className="h-3 w-3 text-white" />
+          </div>
+          <span className="text-xs font-semibold text-amber-900 dark:text-amber-100">
+            Upgrade to Pro
+          </span>
+        </div>
+        <p className="text-[11px] text-amber-700/80 dark:text-amber-300/80 mb-2 leading-relaxed">
+          Unlimited teams, leaderboards & more
+        </p>
+        <Button
+          size="sm"
+          asChild
+          className="w-full h-7 rounded-md bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-[11px] font-medium"
+        >
+          <Link href="/pricing">
+            Start Free Trial
+            <ArrowRight className="ml-1 h-3 w-3" />
+          </Link>
+        </Button>
+      </div>
+    </div>
   )
 }
 

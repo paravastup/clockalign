@@ -115,7 +115,7 @@ export function LandingPage() {
             </Link>
             <Link href="/login">
               <Button
-                className="bg-[hsl(var(--brand))] hover:bg-[hsl(220_90%_50%)] text-white h-9"
+                className="bg-[hsl(var(--brand))] hover:bg-[hsl(173_58%_35%)] text-white h-9"
                 size="sm"
               >
                 Get Started
@@ -175,7 +175,7 @@ export function LandingPage() {
                   </Link>
                   <Link href="/login" className="block">
                     <Button
-                      className="w-full bg-[hsl(var(--brand))] hover:bg-[hsl(220_90%_50%)] text-white"
+                      className="w-full bg-[hsl(var(--brand))] hover:bg-[hsl(173_58%_35%)] text-white"
                     >
                       Get Started
                     </Button>

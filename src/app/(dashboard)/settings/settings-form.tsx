@@ -12,7 +12,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { TimezonePicker } from '@/components/timezone-picker'
 import { EnergyPreferences } from '@/components/energy-preferences'
 import { createClient } from '@/lib/supabase/client'
-import { User, Globe, Zap, Bell, Save, Loader2 } from 'lucide-react'
+import { User, Globe, Zap, Bell, Save, Loader2, CreditCard, Crown, ExternalLink } from 'lucide-react'
+import { useSubscription } from '@/hooks/useSubscription'
+import { SubscriptionBadge } from '@/components/premium-gate'
+import { Badge } from '@/components/ui/badge'
+import { formatPrice, PRICING } from '@/lib/stripe'
+import Link from 'next/link'
 import { toast } from 'sonner'
 
 interface EnergyProfile {
@@ -191,6 +196,9 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
         </CardContent>
       </Card>
 
+      {/* Subscription & Billing Section */}
+      <BillingSection />
+
       {/* Notification Preferences */}
       <Card className="card-elevated">
         <CardHeader>
@@ -283,5 +291,168 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
         </Button>
       </div>
     </div>
+  )
+}
+
+/**
+ * Billing Section Component
+ * Shows current subscription status and manage billing button
+ */
+function BillingSection() {
+  const {
+    isPro,
+    isTrialing,
+    isLoading,
+    tier,
+    status,
+    currentPeriodEnd,
+    trialEndsAt,
+    redirectToPortal,
+    redirectToCheckout,
+  } = useSubscription()
+
+  const [portalLoading, setPortalLoading] = React.useState(false)
+
+  const handleManageBilling = async () => {
+    setPortalLoading(true)
+    try {
+      await redirectToPortal()
+    } catch (error) {
+      toast.error('Failed to open billing portal')
+    } finally {
+      setPortalLoading(false)
+    }
+  }
+
+  const formatDate = (date: Date | null) => {
+    if (!date) return null
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(date)
+  }
+
+  return (
+    <Card className="card-elevated">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50">
+              <CreditCard className="h-5 w-5 text-amber-600" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-semibold tracking-tight">Subscription</CardTitle>
+              <CardDescription className="text-[13px]">
+                Manage your billing and subscription
+              </CardDescription>
+            </div>
+          </div>
+          <SubscriptionBadge />
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : isPro ? (
+          <>
+            {/* Pro user content */}
+            <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-800/50 p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500">
+                  <Crown className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-amber-900 dark:text-amber-100">
+                    ClockAlign Pro
+                  </p>
+                  <p className="text-xs text-amber-700/80 dark:text-amber-300/80">
+                    {isTrialing ? (
+                      <>Trial ends {formatDate(trialEndsAt)}</>
+                    ) : status === 'past_due' ? (
+                      <span className="text-red-600">Payment past due</span>
+                    ) : (
+                      <>Renews {formatDate(currentPeriodEnd)}</>
+                    )}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleManageBilling}
+                  disabled={portalLoading}
+                  className="rounded-lg border-amber-200 hover:bg-amber-100/50 dark:border-amber-800 dark:hover:bg-amber-900/50"
+                >
+                  {portalLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      Manage Billing
+                      <ExternalLink className="ml-2 h-3.5 w-3.5" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Usage stats placeholder */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="text-center p-3 rounded-lg bg-muted/30">
+                <p className="text-2xl font-bold text-teal-600">∞</p>
+                <p className="text-xs text-muted-foreground">Teams</p>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-muted/30">
+                <p className="text-2xl font-bold text-teal-600">∞</p>
+                <p className="text-xs text-muted-foreground">Members</p>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-muted/30 col-span-2 md:col-span-1">
+                <p className="text-2xl font-bold text-emerald-600">✓</p>
+                <p className="text-xs text-muted-foreground">All Features</p>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Free user content */}
+            <div className="rounded-xl border border-dashed p-4">
+              <p className="text-sm text-muted-foreground mb-3">
+                You&apos;re on the <strong>Free</strong> plan. Upgrade to Pro for unlimited teams, leaderboards, and more.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  asChild
+                  className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                >
+                  <Link href="/pricing">
+                    <Crown className="mr-2 h-4 w-4" />
+                    Upgrade to Pro
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Free tier limits */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 rounded-lg bg-muted/30">
+                <p className="text-2xl font-bold text-amber-600">1</p>
+                <p className="text-xs text-muted-foreground">Team</p>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-muted/30">
+                <p className="text-2xl font-bold text-amber-600">5</p>
+                <p className="text-xs text-muted-foreground">Members max</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground text-center">
+              Start with a 7-day free trial • {formatPrice(PRICING.monthly.amount)}/month after
+            </p>
+          </>
+        )}
+      </CardContent>
+    </Card>
   )
 }

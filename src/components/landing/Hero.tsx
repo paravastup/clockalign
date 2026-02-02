@@ -40,7 +40,7 @@ export function Hero() {
         <motion.div 
           className="absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full"
           style={{
-            background: 'radial-gradient(circle, hsl(220 90% 92% / 0.6) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, hsl(172 60% 92% / 0.6) 0%, transparent 70%)',
             filter: 'blur(80px)',
           }}
           animate={{
@@ -66,7 +66,7 @@ export function Hero() {
         <div 
           className="absolute inset-0 opacity-[0.4]"
           style={{
-            backgroundImage: `radial-gradient(hsl(220 20% 70%) 1px, transparent 1px)`,
+            backgroundImage: `radial-gradient(hsl(172 20% 70%) 1px, transparent 1px)`,
             backgroundSize: '32px 32px',
           }}
         />
@@ -120,7 +120,7 @@ export function Hero() {
           <Link href="/finder">
             <Button
               size="lg"
-              className="bg-[hsl(var(--brand))] hover:bg-[hsl(220_90%_50%)] text-white font-medium px-6 h-12"
+              className="bg-[hsl(var(--brand))] hover:bg-[hsl(173_58%_35%)] text-white font-medium px-6 h-12"
             >
               Try Fair Time Finder
               <ArrowRight className="w-4 h-4 ml-2" />

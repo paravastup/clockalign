@@ -28,6 +28,7 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@stripe/stripe-js": "^8.7.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.93.3",
     "browserslist": "^4.28.1",
@@ -50,6 +51,7 @@
     "react-day-picker": "^9.13.0",
     "react-dom": "^18",
     "sonner": "^2.0.7",
+    "stripe": "^20.3.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7"
   },

@@ -27,6 +27,13 @@ export interface Database {
           preferences: Json
           created_at: string
           updated_at: string
+          // Subscription fields
+          stripe_customer_id: string | null
+          subscription_status: 'free' | 'active' | 'past_due' | 'canceled' | 'trialing' | 'incomplete'
+          subscription_tier: 'free' | 'pro'
+          subscription_id: string | null
+          current_period_end: string | null
+          trial_ends_at: string | null
         }
         Insert: {
           id?: string
@@ -39,6 +46,13 @@ export interface Database {
           preferences?: Json
           created_at?: string
           updated_at?: string
+          // Subscription fields
+          stripe_customer_id?: string | null
+          subscription_status?: 'free' | 'active' | 'past_due' | 'canceled' | 'trialing' | 'incomplete'
+          subscription_tier?: 'free' | 'pro'
+          subscription_id?: string | null
+          current_period_end?: string | null
+          trial_ends_at?: string | null
         }
         Update: {
           id?: string
@@ -51,6 +65,13 @@ export interface Database {
           preferences?: Json
           created_at?: string
           updated_at?: string
+          // Subscription fields
+          stripe_customer_id?: string | null
+          subscription_status?: 'free' | 'active' | 'past_due' | 'canceled' | 'trialing' | 'incomplete'
+          subscription_tier?: 'free' | 'pro'
+          subscription_id?: string | null
+          current_period_end?: string | null
+          trial_ends_at?: string | null
         }
       }
       teams: {

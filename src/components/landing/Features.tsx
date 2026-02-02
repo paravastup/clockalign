@@ -124,16 +124,16 @@ export function Features() {
                 }`}
                 onClick={() => setActiveFeature(feature.id)}
               >
-                <div 
+                <div
                   className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5`}
-                  style={{ 
-                    background: feature.id === 'sacrifice' 
-                      ? 'hsl(220 90% 96%)'
+                  style={{
+                    background: feature.id === 'sacrifice'
+                      ? 'hsl(172 60% 95%)'
                       : feature.id === 'golden'
                         ? 'hsl(38 92% 95%)'
                         : 'hsl(260 80% 95%)',
-                    color: feature.id === 'sacrifice' 
-                      ? 'hsl(220 90% 56%)'
+                    color: feature.id === 'sacrifice'
+                      ? 'hsl(173 58% 39%)'
                       : feature.id === 'golden'
                         ? 'hsl(38 92% 45%)'
                         : 'hsl(260 80% 55%)'
