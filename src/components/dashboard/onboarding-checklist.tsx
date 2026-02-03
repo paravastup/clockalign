@@ -46,10 +46,10 @@ export function OnboardingChecklist({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.98 }}
       transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-950/30 dark:to-emerald-950/20 border border-teal-200 dark:border-teal-800/50 shadow-sm"
+      className="relative overflow-hidden rounded-2xl bg-card border border-border shadow-sm"
     >
       {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-teal-200/20 to-emerald-200/20 dark:from-teal-500/10 dark:to-emerald-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-muted/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
       <div className="relative z-10 p-6">
         {/* Header */}
@@ -67,8 +67,8 @@ export function OnboardingChecklist({
                     task.completed
                       ? 'bg-emerald-500'
                       : i === activeStepIndex
-                        ? 'bg-teal-500 animate-pulse'
-                        : 'bg-slate-300 dark:bg-slate-600'
+                        ? 'bg-[hsl(var(--brand))] animate-pulse'
+                        : 'bg-muted-foreground/30'
                   }`}
                 />
               ))}
@@ -77,7 +77,7 @@ export function OnboardingChecklist({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-sm font-semibold text-slate-700 dark:text-slate-300"
+              className="text-sm font-semibold text-foreground"
             >
               {Math.round(progress)}% complete
             </motion.span>
@@ -100,12 +100,12 @@ export function OnboardingChecklist({
           transition={{ delay: 0.2, duration: 0.5 }}
           className="mb-6 relative"
         >
-          <div className="h-2 w-full rounded-full bg-teal-100 dark:bg-teal-900/30 overflow-hidden">
+          <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ delay: 0.4, duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
-              className="h-full rounded-full bg-gradient-to-r from-teal-400 via-emerald-400 to-teal-500 relative"
+              className="h-full rounded-full bg-[hsl(var(--brand))] relative"
             >
               {/* Shimmer effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
@@ -132,7 +132,7 @@ export function OnboardingChecklist({
                   layout
                 >
                   {task.completed ? (
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-emerald-200/50 dark:border-emerald-700/30">
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-emerald-500/20">
                       {/* Animated checkmark */}
                       <motion.div
                         initial={{ scale: 0 }}
@@ -151,7 +151,7 @@ export function OnboardingChecklist({
                         <div className="absolute inset-0 rounded-full bg-emerald-400/30 blur-sm -z-10" />
                       </motion.div>
                       <div className="flex-1 min-w-0">
-                        <span className="text-sm font-medium text-slate-500 dark:text-slate-400 line-through">
+                        <span className="text-sm font-medium text-muted-foreground line-through">
                           {task.label}
                         </span>
                         <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
@@ -166,20 +166,20 @@ export function OnboardingChecklist({
                         whileTap={{ scale: 0.99 }}
                         className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${
                           isActive
-                            ? 'bg-white dark:bg-slate-800 border-teal-300 dark:border-teal-600 shadow-md shadow-teal-100/50 dark:shadow-teal-900/30 ring-2 ring-teal-200/50 dark:ring-teal-700/30'
-                            : 'bg-white/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/50'
+                            ? 'bg-card border-[hsl(var(--brand))]/40 shadow-md ring-2 ring-[hsl(var(--brand))]/20'
+                            : 'bg-muted/30 border-border'
                         }`}
                       >
                         {/* Step number with icon */}
                         <div className={`relative flex items-center justify-center w-7 h-7 rounded-full border-2 transition-colors ${
                           isActive
-                            ? 'border-teal-400 dark:border-teal-500 bg-teal-50 dark:bg-teal-900/30'
-                            : 'border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800'
+                            ? 'border-[hsl(var(--brand))]/60 bg-[hsl(var(--brand))]/10'
+                            : 'border-border bg-muted'
                         }`}>
                           <span className={`text-xs font-bold ${
                             isActive
-                              ? 'text-teal-600 dark:text-teal-400'
-                              : 'text-slate-400 dark:text-slate-500'
+                              ? 'text-[hsl(var(--brand))]'
+                              : 'text-muted-foreground'
                           }`}>
                             {stepNumber}
                           </span>
@@ -189,7 +189,7 @@ export function OnboardingChecklist({
                               initial={{ scale: 1, opacity: 0.5 }}
                               animate={{ scale: 1.5, opacity: 0 }}
                               transition={{ duration: 1.5, repeat: Infinity }}
-                              className="absolute inset-0 rounded-full border-2 border-teal-400"
+                              className="absolute inset-0 rounded-full border-2 border-[hsl(var(--brand))]"
                             />
                           )}
                         </div>
@@ -198,30 +198,30 @@ export function OnboardingChecklist({
                           <div className="flex items-center gap-2">
                             <Icon className={`w-3.5 h-3.5 ${
                               isActive
-                                ? 'text-teal-500'
-                                : 'text-slate-400 dark:text-slate-500'
+                                ? 'text-[hsl(var(--brand))]'
+                                : 'text-muted-foreground'
                             }`} />
                             <span className={`text-sm font-medium ${
                               isActive
-                                ? 'text-slate-900 dark:text-slate-100'
-                                : 'text-slate-600 dark:text-slate-400'
+                                ? 'text-foreground'
+                                : 'text-muted-foreground'
                             }`}>
                               {task.label}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                          <p className="text-xs text-muted-foreground mt-0.5">
                             {meta.duration}
                           </p>
                         </div>
 
                         {/* Action button for active step */}
                         {isActive ? (
-                          <span className="flex items-center gap-1 text-xs font-semibold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2.5 py-1 rounded-full group-hover:bg-teal-100 dark:group-hover:bg-teal-900/50 transition-colors">
+                          <span className="flex items-center gap-1 text-xs font-semibold text-[hsl(var(--brand))] bg-[hsl(var(--brand))]/10 px-2.5 py-1 rounded-full group-hover:bg-[hsl(var(--brand))]/20 transition-colors">
                             Start
                             <ChevronRight className="w-3 h-3" />
                           </span>
                         ) : (
-                          <ChevronRight className="w-4 h-4 text-slate-300 dark:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ChevronRight className="w-4 h-4 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
                         )}
                       </motion.div>
                     </Link>
@@ -238,7 +238,7 @@ export function OnboardingChecklist({
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="mt-5 p-4 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 text-white relative overflow-hidden"
+            className="mt-5 p-4 rounded-xl bg-[hsl(var(--brand))] text-white relative overflow-hidden"
           >
             {/* Animated particles/sparkles */}
             <div className="absolute inset-0 overflow-hidden">
