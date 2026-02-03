@@ -1,19 +1,17 @@
 /**
- * Dashboard Page - Premium UI
- * Main hub after login with enhanced empty states and micro-interactions
+ * Dashboard Page - Clean Minimal UI
+ * Modern, professional dashboard with subtle visual hierarchy
  */
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
-import { 
-  Calendar, 
-  Users, 
-  BarChart3, 
-  Clock, 
-  Zap,
+import {
+  Calendar,
+  Users,
+  BarChart3,
+  Clock,
   Trophy,
   Timer,
   ArrowRight,
@@ -28,7 +26,7 @@ import { WelcomeHeader } from '@/components/dashboard/welcome-header'
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user) {
     redirect('/login')
   }
@@ -75,193 +73,153 @@ export default async function DashboardPage() {
   const showOnboarding = completedTasks < onboardingTasks.length && !profile?.onboarding_completed
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Welcome Header */}
       <WelcomeHeader firstName={firstName} timezone={profile?.timezone} />
 
       {/* Onboarding Checklist */}
       {showOnboarding && (
-        <OnboardingChecklist 
-          tasks={onboardingTasks} 
+        <OnboardingChecklist
+          tasks={onboardingTasks}
           completedCount={completedTasks}
           totalCount={onboardingTasks.length}
         />
       )}
 
-      {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title="Upcoming"
+      {/* Stats Row - Clean inline stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatItem
+          label="Upcoming"
           value={meetingCount}
           suffix=""
-          subtitle="Meetings this week"
+          detail="meetings"
           icon={Calendar}
-          iconColor="text-[hsl(var(--brand))]"
-          trend={meetingCount > 0 ? { value: 2, label: 'vs last week' } : undefined}
         />
-
-        <StatsCard
-          title="Sacrifice Score"
+        <StatItem
+          label="Sacrifice"
           value={0}
           suffix=""
-          subtitle="Perfect balance! 🎉"
+          detail="perfect balance"
           icon={Trophy}
-          iconColor="text-amber-500"
-          subtitleColor="text-emerald-600 dark:text-emerald-400"
         />
-
-        <StatsCard
-          title="Reclaimed"
+        <StatItem
+          label="Reclaimed"
           value={0}
           suffix="h"
-          subtitle="Async time saved"
+          detail="async saved"
           icon={Timer}
-          iconColor="text-emerald-500"
         />
-
-        <StatsCard
-          title="Team"
+        <StatItem
+          label="Team"
           value={(teamCount || 0) + 1}
           suffix=""
-          subtitle="Members total"
+          detail="members"
           icon={Users}
-          iconColor="text-sky-500"
         />
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Quick Actions */}
-        <div className="lg:col-span-2 space-y-5">
+      {/* Main Content */}
+      <div className="grid gap-8 lg:grid-cols-3">
+        {/* Quick Actions - Left */}
+        <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Quick Actions
-            </h2>
+            <h2 className="text-sm font-medium text-foreground">Quick Actions</h2>
             <Link
               href="/meetings"
-              className="text-xs text-[hsl(var(--brand))] hover:text-[hsl(var(--brand))]/80 flex items-center gap-1 transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
             >
-              View all <ArrowRight className="w-3 h-3" />
+              All meetings <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          
-          <div className="grid gap-4 sm:grid-cols-2">
-            <ActionCard
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <ActionItem
               href="/meetings/new"
               icon={Calendar}
               title="New Meeting"
-              description="Find a time that works for everyone"
+              description="Find fair times"
             />
-
-            <ActionCard
+            <ActionItem
               href="/teams/new"
               icon={Users}
               title="Add Team"
-              description="Invite members to track fairness"
+              description="Track fairness"
             />
           </div>
 
-          <ActionCard
+          <ActionItem
             href="/fairness"
             icon={BarChart3}
             title="Fairness Dashboard"
-            description="See who is taking the scheduling hit across your team"
-            size="large"
+            description="See who's taking the scheduling hit"
+            featured
           />
         </div>
 
-        {/* Side Panel */}
-        <div className="space-y-5">
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Optimization
-          </h2>
+        {/* Side Panel - Right */}
+        <div className="space-y-6">
+          <h2 className="text-sm font-medium text-foreground">Settings</h2>
 
-          <Card className="relative overflow-hidden border-border">
-            <div className="absolute top-0 right-0 p-6 opacity-5">
-              <Zap className="h-32 w-32 text-foreground" />
+          {/* Golden Windows */}
+          <div className="group p-5 rounded-2xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 hover:from-amber-500/10 hover:to-orange-500/10 transition-colors">
+            <div className="flex items-start gap-3 mb-3">
+              <Sparkles className="w-5 h-5 text-amber-500 mt-0.5" />
+              <div>
+                <h3 className="font-medium text-foreground">Golden Windows</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Optimize for energy, not just availability
+                </p>
+              </div>
             </div>
-            <CardHeader className="relative z-10 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-muted text-amber-500">
-                  <Sparkles className="h-4 w-4" />
-                </div>
-                <CardTitle className="text-base font-semibold">Golden Windows</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="relative z-10 space-y-4">
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Optimize meetings for energy levels, not just availability. We analyze your schedule to find peak times.
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                asChild
-              >
-                <Link href="/settings">Set Preferences</Link>
-              </Button>
-            </CardContent>
-          </Card>
+            <Button variant="ghost" size="sm" className="w-full justify-start -ml-2 text-muted-foreground hover:text-foreground" asChild>
+              <Link href="/settings">
+                Set preferences <ArrowRight className="w-3.5 h-3.5 ml-auto" />
+              </Link>
+            </Button>
+          </div>
 
-          {/* Timezone Card */}
-          <Card className="relative overflow-hidden border-border">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-muted text-muted-foreground">
-                  <Globe className="h-4 w-4" />
-                </div>
-                <CardTitle className="text-base font-semibold">Your Timezone</CardTitle>
+          {/* Timezone */}
+          <div className="p-5 rounded-2xl bg-muted/30">
+            <div className="flex items-start gap-3 mb-3">
+              <Globe className="w-5 h-5 text-muted-foreground mt-0.5" />
+              <div>
+                <h3 className="font-medium text-foreground">Timezone</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {profile?.timezone?.replace(/_/g, ' ') || 'Not configured'}
+                </p>
               </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                {profile?.timezone || 'Not set'}
-              </p>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mt-3 -ml-2 text-[hsl(var(--brand))] hover:text-[hsl(var(--brand))]/80"
-                asChild
-              >
-                <Link href="/settings">
-                  <Clock className="w-3.5 h-3.5 mr-1.5" />
-                  Change timezone
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+            </div>
+            <Button variant="ghost" size="sm" className="w-full justify-start -ml-2 text-muted-foreground hover:text-foreground" asChild>
+              <Link href="/settings">
+                <Clock className="w-3.5 h-3.5 mr-2" />
+                {profile?.timezone ? 'Change' : 'Set timezone'}
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Meetings Section */}
+      {/* Upcoming Meetings */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-foreground">
-            Upcoming Meetings
-          </h2>
-        </div>
+        <h2 className="text-sm font-medium text-foreground">Upcoming Meetings</h2>
 
         {meetingCount === 0 ? (
-          <Card className="border-dashed border-border">
+          <div className="py-12 text-center">
             <EmptyState
               title="No meetings scheduled"
-              description="Your calendar is clear. When you're ready, schedule a fair meeting that works for everyone's timezone."
+              description="Schedule a fair meeting that works for everyone's timezone."
               illustration="calendar"
               action={{
                 label: 'Schedule Meeting',
                 href: '/meetings/new',
               }}
-              secondaryAction={{
-                label: 'Learn more',
-                href: '/finder',
-              }}
-              size="md"
+              size="sm"
             />
-          </Card>
+          </div>
         ) : (
-          <div className="grid gap-3">
+          <div className="space-y-2">
             {upcomingMeetings?.map((meeting) => (
-              <MeetingCard key={meeting.id} meeting={meeting} />
+              <MeetingRow key={meeting.id} meeting={meeting} />
             ))}
           </div>
         )}
@@ -270,121 +228,76 @@ export default async function DashboardPage() {
   )
 }
 
-// Stats Card Component
-interface StatsCardProps {
-  title: string
-  value: number
-  suffix: string
-  subtitle: string
-  icon: LucideIcon
-  iconColor: string
-  subtitleColor?: string
-  trend?: { value: number; label: string }
-}
-
-function StatsCard({
-  title,
+// Minimal stat display
+function StatItem({
+  label,
   value,
   suffix,
-  subtitle,
+  detail,
   icon: Icon,
-  iconColor,
-  subtitleColor = 'text-muted-foreground',
-  trend,
-}: StatsCardProps) {
+}: {
+  label: string
+  value: number
+  suffix: string
+  detail: string
+  icon: LucideIcon
+}) {
   return (
-    <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/20 hover:-translate-y-1 border-border">
-      {/* Background hover effect */}
-      <div className="absolute inset-0 bg-muted/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-      <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-        <div className="p-2 rounded-xl bg-muted group-hover:scale-110 transition-transform duration-300">
-          <Icon className={`h-4 w-4 ${iconColor}`} />
-        </div>
-      </CardHeader>
-      <CardContent className="relative">
-        <div className="flex items-baseline gap-1">
-          <AnimatedCounter
-            value={value}
-            className="text-2xl font-bold tracking-tight text-foreground"
-          />
-          {suffix && (
-            <span className="text-lg font-semibold text-muted-foreground">
-              {suffix}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2 mt-1">
-          <p className={`text-xs ${subtitleColor}`}>{subtitle}</p>
-          {trend && (
-            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-              +{trend.value} {trend.label}
-            </span>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-1">
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <Icon className="w-4 h-4" />
+        <span className="text-xs font-medium uppercase tracking-wide">{label}</span>
+      </div>
+      <div className="flex items-baseline gap-1">
+        <AnimatedCounter
+          value={value}
+          className="text-3xl font-semibold tracking-tight text-foreground"
+        />
+        {suffix && <span className="text-xl text-muted-foreground">{suffix}</span>}
+      </div>
+      <p className="text-xs text-muted-foreground">{detail}</p>
+    </div>
   )
 }
 
-// Action Card Component
-interface ActionCardProps {
-  href: string
-  icon: LucideIcon
-  title: string
-  description: string
-  size?: 'default' | 'large'
-}
-
-function ActionCard({
+// Clean action item
+function ActionItem({
   href,
   icon: Icon,
   title,
   description,
-  size = 'default',
-}: ActionCardProps) {
-  const isLarge = size === 'large'
-
+  featured = false,
+}: {
+  href: string
+  icon: LucideIcon
+  title: string
+  description: string
+  featured?: boolean
+}) {
   return (
-    <Link href={href} className="block group">
-      <Card className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/20 hover:-translate-y-1 border-border hover:border-[hsl(var(--brand))]/40 ${
-        isLarge ? 'flex items-center gap-6 p-6' : 'p-6'
+    <Link href={href} className="group block">
+      <div className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${
+        featured
+          ? 'bg-[hsl(var(--brand))]/5 hover:bg-[hsl(var(--brand))]/10'
+          : 'hover:bg-muted/50'
       }`}>
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-muted/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Icon className="h-16 w-16 text-muted-foreground/20 -mr-4 -mt-4" />
+        <div className={`p-2.5 rounded-lg ${featured ? 'bg-[hsl(var(--brand))]/10' : 'bg-muted'}`}>
+          <Icon className={`w-5 h-5 ${featured ? 'text-[hsl(var(--brand))]' : 'text-muted-foreground'}`} />
         </div>
-
-        {/* Icon */}
-        <div className={`relative z-10 ${isLarge ? 'h-12 w-12' : 'h-10 w-10 mb-4'} rounded-xl bg-muted flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-          <Icon className="h-5 w-5 text-[hsl(var(--brand))]" />
-        </div>
-
-        {/* Content */}
-        <div className="relative z-10">
-          <h3 className={`font-semibold mb-1 text-foreground group-hover:text-[hsl(var(--brand))] transition-colors ${isLarge ? 'text-lg' : ''}`}>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-medium text-foreground group-hover:text-[hsl(var(--brand))] transition-colors">
             {title}
           </h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {description}
-          </p>
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
-
-        {/* Arrow indicator */}
-        <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-          <ArrowRight className="h-5 w-5 text-[hsl(var(--brand))]" />
-        </div>
-      </Card>
+        <ArrowRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-[hsl(var(--brand))] group-hover:translate-x-0.5 transition-all" />
+      </div>
     </Link>
   )
 }
 
-// Meeting Card Component
-function MeetingCard({ meeting }: { meeting: { id: string; title: string; start_time: string } }) {
+// Simple meeting row
+function MeetingRow({ meeting }: { meeting: { id: string; title: string; start_time: string } }) {
   const date = new Date(meeting.start_time)
   const isToday = new Date().toDateString() === date.toDateString()
   const isTomorrow = new Date(Date.now() + 86400000).toDateString() === date.toDateString()
@@ -394,29 +307,22 @@ function MeetingCard({ meeting }: { meeting: { id: string; title: string; start_
   if (isTomorrow) dateLabel = 'Tomorrow'
 
   return (
-    <Link href={`/meetings/${meeting.id}`}>
-      <Card className="group hover:border-[hsl(var(--brand))]/40 border-border transition-all duration-300 hover:shadow-md">
-        <CardContent className="p-4 flex items-center gap-4">
-          {/* Date badge */}
-          <div className="flex flex-col items-center justify-center w-14 h-14 rounded-xl bg-muted text-[hsl(var(--brand))] shrink-0">
-            <span className="text-xs font-medium uppercase">{date.toLocaleDateString('en-US', { month: 'short' })}</span>
-            <span className="text-lg font-bold">{date.getDate()}</span>
-          </div>
-
-          {/* Meeting info */}
-          <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-foreground truncate group-hover:text-[hsl(var(--brand))] transition-colors">
-              {meeting.title}
-            </h4>
-            <p className="text-sm text-muted-foreground">
-              {dateLabel} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-            </p>
-          </div>
-
-          {/* Arrow */}
-          <ArrowRight className="w-5 h-5 text-muted-foreground/50 group-hover:text-[hsl(var(--brand))] transition-colors transform group-hover:translate-x-1" />
-        </CardContent>
-      </Card>
+    <Link href={`/meetings/${meeting.id}`} className="group block">
+      <div className="flex items-center gap-4 p-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors">
+        <div className="w-12 text-center">
+          <div className="text-lg font-semibold text-foreground">{date.getDate()}</div>
+          <div className="text-xs text-muted-foreground uppercase">{date.toLocaleDateString('en-US', { month: 'short' })}</div>
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium text-foreground truncate group-hover:text-[hsl(var(--brand))] transition-colors">
+            {meeting.title}
+          </h4>
+          <p className="text-sm text-muted-foreground">
+            {dateLabel} · {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+          </p>
+        </div>
+        <ArrowRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground transition-colors" />
+      </div>
     </Link>
   )
 }
