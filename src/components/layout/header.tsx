@@ -1,8 +1,10 @@
 'use client'
 
 import * as React from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -14,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { MobileSidebar } from './sidebar'
-import { Settings, LogOut, User, Globe, Bell } from 'lucide-react'
+import { Settings, LogOut, User, Globe, Bell, Sun, Moon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface HeaderProps {
@@ -29,6 +31,14 @@ interface HeaderProps {
 export function Header({ user }: HeaderProps) {
   const router = useRouter()
   const supabase = createClient()
+  const [mounted, setMounted] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
+  const isDark = resolvedTheme === 'dark'
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const initials = user.name 
     ? user.name.split(' ').map(n => n[0]).join('').toUpperCase()
@@ -52,6 +62,24 @@ export function Header({ user }: HeaderProps) {
           <Globe className="h-3.5 w-3.5 text-teal-500" />
           <span className="text-xs font-medium">{user.timezone.replace('_', ' ')}</span>
         </div>
+      )}
+
+      {/* Theme Toggle */}
+      {mounted && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setTheme(isDark ? 'light' : 'dark')}
+          className="relative rounded-full h-9 w-9 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {isDark ? (
+            <Sun className="h-[18px] w-[18px] text-amber-500 transition-transform hover:rotate-45" />
+          ) : (
+            <Moon className="h-[18px] w-[18px] text-zinc-500 transition-transform hover:-rotate-12" />
+          )}
+          <span className="sr-only">Toggle theme</span>
+        </Button>
       )}
 
       {/* Notifications */}
