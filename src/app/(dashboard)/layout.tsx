@@ -18,12 +18,18 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
-  // Fetch user profile from database
-  const { data: profile } = await supabase
+  // Fetch user profile from database (use maybeSingle to avoid throwing)
+  const { data: profileData, error: profileError } = await supabase
     .from('users')
     .select('name, timezone, avatar_url')
     .eq('id', authUser.id)
-    .single() as { data: { name: string | null; timezone: string; avatar_url: string | null } | null }
+    .maybeSingle()
+
+  if (profileError) {
+    console.error('Profile fetch error:', profileError)
+  }
+
+  const profile = profileData as { name: string | null; timezone: string; avatar_url: string | null } | null
 
   const user = {
     email: authUser.email,

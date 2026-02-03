@@ -22,13 +22,37 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    
-    if (error) {
-      console.error('Session exchange error:', error)
+    const { error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (sessionError) {
+      console.error('Session exchange error:', sessionError)
       return NextResponse.redirect(
-        `${origin}/login?error=${encodeURIComponent(error.message)}`
+        `${origin}/login?error=${encodeURIComponent(sessionError.message)}`
       )
+    }
+
+    // Get the authenticated user
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (user) {
+      // Ensure user exists in public.users table (upsert)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: upsertError } = await (supabase.from('users') as any).upsert({
+        id: user.id,
+        email: user.email,
+        name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0],
+        avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'id',
+        ignoreDuplicates: false,
+      })
+
+      if (upsertError) {
+        console.error('User upsert error:', upsertError)
+        // Don't block login, just log the error
+      }
     }
 
     // Successful authentication - redirect to intended destination

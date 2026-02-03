@@ -34,6 +34,10 @@ export interface Database {
           subscription_id: string | null
           current_period_end: string | null
           trial_ends_at: string | null
+          // Referral fields
+          referral_code: string | null
+          referred_by: string | null
+          referral_count: number
         }
         Insert: {
           id?: string
@@ -53,6 +57,10 @@ export interface Database {
           subscription_id?: string | null
           current_period_end?: string | null
           trial_ends_at?: string | null
+          // Referral fields
+          referral_code?: string | null
+          referred_by?: string | null
+          referral_count?: number
         }
         Update: {
           id?: string
@@ -72,6 +80,39 @@ export interface Database {
           subscription_id?: string | null
           current_period_end?: string | null
           trial_ends_at?: string | null
+          // Referral fields
+          referral_code?: string | null
+          referred_by?: string | null
+          referral_count?: number
+        }
+      }
+      referrals: {
+        Row: {
+          id: string
+          referrer_id: string
+          referred_id: string
+          stripe_promo_code_id: string | null
+          status: 'pending' | 'converted' | 'expired'
+          created_at: string
+          converted_at: string | null
+        }
+        Insert: {
+          id?: string
+          referrer_id: string
+          referred_id: string
+          stripe_promo_code_id?: string | null
+          status?: 'pending' | 'converted' | 'expired'
+          created_at?: string
+          converted_at?: string | null
+        }
+        Update: {
+          id?: string
+          referrer_id?: string
+          referred_id?: string
+          stripe_promo_code_id?: string | null
+          status?: 'pending' | 'converted' | 'expired'
+          created_at?: string
+          converted_at?: string | null
         }
       }
       teams: {

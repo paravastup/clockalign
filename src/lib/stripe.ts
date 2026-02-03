@@ -20,14 +20,8 @@ export function getStripe(): Stripe {
   return stripeInstance
 }
 
-// For backward compatibility, export as stripe getter
-export const stripe = {
-  get customers() { return getStripe().customers },
-  get subscriptions() { return getStripe().subscriptions },
-  get checkout() { return getStripe().checkout },
-  get billingPortal() { return getStripe().billingPortal },
-  get webhooks() { return getStripe().webhooks },
-}
+// Export the stripe instance getter
+export { getStripe as stripe }
 
 // Pricing configuration
 export const PRICING = {

@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { signInWithMagicLink, signInWithGoogle } from '@/lib/auth/actions'
+import { signInWithMagicLink } from '@/lib/auth/actions'
+import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const searchParams = useSearchParams()
@@ -47,14 +48,37 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setLoading(true)
     setMessage(null)
-    
-    const result = await signInWithGoogle(redirectTo || undefined)
-    
-    if (result?.error) {
-      setMessage({ type: 'error', text: result.error })
+
+    const supabase = createClient()
+    const origin = window.location.origin
+    const nextParam = redirectTo ? `?next=${encodeURIComponent(redirectTo)}` : ''
+    const redirectToUrl = `${origin}/auth/callback${nextParam}`
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectToUrl,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+        skipBrowserRedirect: true,
+      },
+    })
+
+    if (error) {
+      setMessage({ type: 'error', text: error.message })
       setLoading(false)
+      return
     }
-    // If successful, user will be redirected
+
+    if (data?.url) {
+      window.location.assign(data.url)
+      return
+    }
+
+    setMessage({ type: 'error', text: 'Failed to initiate Google sign in' })
+    setLoading(false)
   }
 
   return (

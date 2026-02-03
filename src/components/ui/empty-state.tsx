@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 import { Button } from './button';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface EmptyStateProps {
   title: string;
@@ -12,12 +13,14 @@ interface EmptyStateProps {
   icon?: LucideIcon;
   action?: {
     label: string;
-    onClick: () => void;
+    href?: string;        // Use href for Server Components
+    onClick?: () => void; // Use onClick for Client Components
     icon?: LucideIcon;
   };
   secondaryAction?: {
     label: string;
-    onClick: () => void;
+    href?: string;        // Use href for Server Components
+    onClick?: () => void; // Use onClick for Client Components
   };
   illustration?: 'calendar' | 'team' | 'chart' | 'clock' | 'search' | 'custom';
   customIllustration?: ReactNode;
@@ -118,22 +121,46 @@ export function EmptyState({
           className="flex flex-col sm:flex-row items-center gap-3 mt-6"
         >
           {action && (
-            <Button
-              onClick={action.onClick}
-              className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg shadow-teal-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/30 hover:-translate-y-0.5"
-            >
-              {action.icon && <action.icon className="w-4 h-4 mr-2" />}
-              {action.label}
-            </Button>
+            action.href ? (
+              <Button
+                asChild
+                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg shadow-teal-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/30 hover:-translate-y-0.5"
+              >
+                <Link href={action.href}>
+                  {action.icon && <action.icon className="w-4 h-4 mr-2" />}
+                  {action.label}
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                onClick={action.onClick}
+                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg shadow-teal-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/30 hover:-translate-y-0.5"
+              >
+                {action.icon && <action.icon className="w-4 h-4 mr-2" />}
+                {action.label}
+              </Button>
+            )
           )}
           {secondaryAction && (
-            <Button
-              variant="ghost"
-              onClick={secondaryAction.onClick}
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
-            >
-              {secondaryAction.label}
-            </Button>
+            secondaryAction.href ? (
+              <Button
+                variant="ghost"
+                asChild
+                className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+              >
+                <Link href={secondaryAction.href}>
+                  {secondaryAction.label}
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                onClick={secondaryAction.onClick}
+                className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+              >
+                {secondaryAction.label}
+              </Button>
+            )
           )}
         </motion.div>
       )}

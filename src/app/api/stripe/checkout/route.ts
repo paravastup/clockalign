@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     // Create Stripe customer if doesn't exist
     if (!customerId) {
-      const customer = await stripe.customers.create({
+      const customer = await stripe().customers.create({
         email: user.email || profile?.email || undefined,
         name: profile?.name || undefined,
         metadata: {
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
     // Create Checkout Session
-    const session = await stripe.checkout.sessions.create({
+    const session = await stripe().checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -109,8 +109,9 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error creating checkout session:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to create checkout session' },
+      { error: 'Failed to create checkout session', details: errorMessage },
       { status: 500 }
     )
   }

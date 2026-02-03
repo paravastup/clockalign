@@ -15,7 +15,7 @@ import { createClient } from '@/lib/supabase/client'
 import { User, Globe, Zap, Bell, Save, Loader2, CreditCard, Crown, ExternalLink } from 'lucide-react'
 import { useSubscription } from '@/hooks/useSubscription'
 import { SubscriptionBadge } from '@/components/premium-gate'
-import { Badge } from '@/components/ui/badge'
+import { ReferralShare } from '@/components/referral-share'
 import { formatPrice, PRICING } from '@/lib/stripe'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -199,6 +199,9 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
       {/* Subscription & Billing Section */}
       <BillingSection />
 
+      {/* Referral Section */}
+      <ReferralShare />
+
       {/* Notification Preferences */}
       <Card className="card-elevated">
         <CardHeader>
@@ -303,12 +306,10 @@ function BillingSection() {
     isPro,
     isTrialing,
     isLoading,
-    tier,
     status,
     currentPeriodEnd,
     trialEndsAt,
     redirectToPortal,
-    redirectToCheckout,
   } = useSubscription()
 
   const [portalLoading, setPortalLoading] = React.useState(false)
@@ -317,7 +318,7 @@ function BillingSection() {
     setPortalLoading(true)
     try {
       await redirectToPortal()
-    } catch (error) {
+    } catch {
       toast.error('Failed to open billing portal')
     } finally {
       setPortalLoading(false)

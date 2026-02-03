@@ -81,38 +81,28 @@ export function Footer() {
             </ul>
           </motion.div>
 
-          {/* Company */}
+          {/* Legal */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: 0.2 }}
           >
-            <h4 className="font-semibold mb-4 text-foreground">Company</h4>
+            <h4 className="font-semibold mb-4 text-foreground">Legal</h4>
             <ul className="space-y-3">
               <li>
-                <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  About
+                <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Blog
+                <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Privacy
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Terms
+                <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Pricing
                 </Link>
               </li>
             </ul>
@@ -128,7 +118,7 @@ export function Footer() {
           className="pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4"
         >
           <p className="text-sm text-muted-foreground">
-            © 2025 ClockAlign. All rights reserved.
+            © 2026 ClockAlign. All rights reserved.
           </p>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             Made with <Heart className="w-4 h-4 text-red-500 fill-red-500" /> for global teams
