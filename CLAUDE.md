@@ -17,16 +17,17 @@ npm test -- __tests__/sacrifice-score.test.ts  # Single test file
 
 ## Deployment
 
-This project uses **GitHub Actions CI/CD** (.github/workflows/ci.yml) for automatic deployment to Vercel.
+**Always use Vercel CLI to deploy:**
 
-**To deploy:** Simply push to `main` branch with `git push origin main`. The CI/CD pipeline handles everything.
+```bash
+vercel --prod    # Deploy to production
+vercel           # Deploy preview
+```
 
 **Do NOT use:**
 - `rsync` for deployment
-- `vercel` CLI commands
-- Manual deployment methods
-
-The GitHub Actions workflow automatically builds, tests, and deploys to Vercel on every push to main.
+- GitHub Actions CI/CD pipeline
+- `git push` alone does NOT deploy - you must use `vercel` CLI
 
 ## Architecture Overview
 
