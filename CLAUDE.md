@@ -17,7 +17,16 @@ npm test -- __tests__/sacrifice-score.test.ts  # Single test file
 
 ## Deployment
 
-This project uses **GitHub Actions CI/CD** (.github/workflows/ci.yml). Do NOT use rsync for deployment.
+This project uses **GitHub Actions CI/CD** (.github/workflows/ci.yml) for automatic deployment to Vercel.
+
+**To deploy:** Simply push to `main` branch with `git push origin main`. The CI/CD pipeline handles everything.
+
+**Do NOT use:**
+- `rsync` for deployment
+- `vercel` CLI commands
+- Manual deployment methods
+
+The GitHub Actions workflow automatically builds, tests, and deploys to Vercel on every push to main.
 
 ## Architecture Overview
 
@@ -146,6 +155,31 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 - `src/components/premium-gate.tsx` - Feature gating components
 - `src/app/api/stripe/` - Checkout and portal routes
 - `src/app/api/webhooks/stripe/` - Webhook handler
+
+### Promo Codes for Owner/Company
+Create these in Stripe Dashboard (no code changes needed):
+1. **Coupon**: 100% off, Duration: Forever
+2. **Promotion Code**: `OWNER2024` (for owner)
+3. **Promotion Code**: `TEAMFREE` (for colleagues)
+
+Users enter these at Stripe checkout to get $0 forever subscriptions.
+
+## Referral System
+
+Users can share referral codes to give friends their first month free.
+
+### Key Files
+- `src/app/api/referrals/code/route.ts` - Get/create user's referral code
+- `src/app/api/referrals/stats/route.ts` - Get referral statistics
+- `src/components/referral-share.tsx` - Share code UI component
+- `src/app/(dashboard)/referrals/page.tsx` - Referral dashboard
+- `supabase/migrations/00004_referrals.sql` - Database schema
+
+### How It Works
+1. Each user gets a unique referral code (e.g., `REF_abc12345`)
+2. User shares code with friends
+3. Friend uses code at Stripe checkout (via allow_promotion_codes)
+4. Referral is tracked in database
 
 ## Testing
 
