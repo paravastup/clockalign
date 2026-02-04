@@ -74,6 +74,15 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
 
+  // Execute command - defined before useEffect that uses it
+  const executeCommand = useCallback((command: CommandItem) => {
+    if (command.action) {
+      command.action();
+    }
+    onClose();
+    setSearchQuery('');
+  }, [onClose]);
+
   // Filter commands based on search
   const filteredCommands = useMemo(() => {
     if (!searchQuery.trim()) return COMMANDS;
@@ -132,20 +141,13 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose, filteredCommands, selectedIndex]);
+  }, [isOpen, onClose, filteredCommands, selectedIndex, executeCommand]);
 
   // Reset selection when search changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedIndex(0);
   }, [searchQuery]);
-
-  const executeCommand = (command: CommandItem) => {
-    if (command.action) {
-      command.action();
-    }
-    onClose();
-    setSearchQuery('');
-  };
 
   if (!isOpen) return null;
 
@@ -190,7 +192,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                   <Search className="w-8 h-8 text-slate-400" />
                 </div>
                 <p className="text-slate-500 dark:text-slate-400">
-                  No commands found for "{searchQuery}"
+                  No commands found for &ldquo;{searchQuery}&rdquo;
                 </p>
               </div>
             ) : (

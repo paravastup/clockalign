@@ -82,6 +82,15 @@ export function MeetingAvoidedBadge({
   const [copied, setCopied] = useState(false)
   const [showConfetti, setShowConfetti] = useState(true)
 
+  // Pre-compute random values for confetti animation using lazy initial state
+  // This ensures randomness is computed once on mount, not during render
+  const [confettiAnimations] = useState(() =>
+    Array.from({ length: 6 }, () => ({
+      duration: 1 + Math.random() * 0.5,
+      delay: Math.random() * 0.3,
+    }))
+  )
+
   const altDisplay = getAlternativeDisplay(alternativeType)
 
   // Generate share text
@@ -226,8 +235,8 @@ export function MeetingAvoidedBadge({
                   scale: 1,
                 }}
                 transition={{
-                  duration: 1 + Math.random() * 0.5,
-                  delay: Math.random() * 0.3,
+                  duration: confettiAnimations[i].duration,
+                  delay: confettiAnimations[i].delay,
                 }}
                 className="absolute text-2xl"
               >

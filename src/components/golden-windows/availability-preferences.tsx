@@ -108,7 +108,7 @@ export function AvailabilityPreferencesForm({
           Energy & Availability
         </CardTitle>
         <CardDescription>
-          Help us find when you're at your best
+          Help us find when you&apos;re at your best
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

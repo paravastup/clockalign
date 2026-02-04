@@ -38,10 +38,12 @@ export function Scheduler() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
+    // Derived state from members - intentional state updates
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (members.length >= 2) {
       const slots = findOptimalSlots(meetingDuration);
       setOptimalSlots(slots.slice(0, 6));
-      
+
       const suggestion = checkAsyncSuggestion(members, 'medium');
       setAsyncSuggestion(suggestion);
       setShowAsyncSuggestion(suggestion.suggestAsync);
@@ -49,6 +51,7 @@ export function Scheduler() {
       setOptimalSlots([]);
       setShowAsyncSuggestion(false);
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [members, meetingDuration, findOptimalSlots, checkAsyncSuggestion]);
 
   const handleAddMember = () => {

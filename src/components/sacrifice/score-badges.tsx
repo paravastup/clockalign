@@ -110,35 +110,52 @@ interface CategoryIndicatorProps {
   className?: string
 }
 
+const ICON_SIZES = {
+  sm: 'h-3 w-3',
+  md: 'h-4 w-4',
+  lg: 'h-5 w-5',
+} as const
+
+const TEXT_SIZES = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
+} as const
+
 export function CategoryIndicator({
   category,
   showLabel = true,
   size = 'md',
   className,
 }: CategoryIndicatorProps) {
-  const Icon = getCategoryIcon(category)
   const colors = getCategoryColor(category)
-  
-  const iconSizes = {
-    sm: 'h-3 w-3',
-    md: 'h-4 w-4',
-    lg: 'h-5 w-5',
-  }
-  
-  const textSizes = {
-    sm: 'text-xs',
-    md: 'text-sm',
-    lg: 'text-base',
-  }
-  
+  // Render the icon inline to avoid component reference assignment
+  const iconClassName = ICON_SIZES[size]
+
   return (
     <span className={cn('inline-flex items-center gap-1.5', colors.text, className)}>
-      <Icon className={iconSizes[size]} />
+      {renderCategoryIcon(category, iconClassName)}
       {showLabel && (
-        <span className={textSizes[size]}>{formatCategory(category)}</span>
+        <span className={TEXT_SIZES[size]}>{formatCategory(category)}</span>
       )}
     </span>
   )
+}
+
+// Helper to render category icon without creating component during render
+function renderCategoryIcon(category: SacrificeCategory, className: string) {
+  switch (category) {
+    case 'golden': return <Sun className={className} />
+    case 'good': return <Sunrise className={className} />
+    case 'acceptable': return <Coffee className={className} />
+    case 'early_morning': return <Sunrise className={className} />
+    case 'evening': return <Sunset className={className} />
+    case 'late_evening': return <Moon className={className} />
+    case 'night': return <Moon className={className} />
+    case 'late_night': return <Moon className={className} />
+    case 'graveyard': return <Moon className={className} />
+    default: return <Clock className={className} />
+  }
 }
 
 // ============================================

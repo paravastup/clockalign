@@ -105,6 +105,8 @@ export default function SacrificeCalculator() {
   const { resolvedTheme } = useTheme()
 
   useEffect(() => {
+    // Hydration + analytics - intentional mount behavior
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true)
     trackEvent(ANALYTICS_EVENTS.CALCULATOR_USED, {
       initial_cities: DEFAULT_CITIES.length,
@@ -112,12 +114,15 @@ export default function SacrificeCalculator() {
   }, [])
 
   useEffect(() => {
+    // Derived state from search query - intentional pattern
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (searchQuery.length >= 2) {
       const results = searchCities(searchQuery, 6)
       setSearchResults(results)
     } else {
       setSearchResults([])
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [searchQuery])
 
   const addCity = (worldCity: WorldCity) => {

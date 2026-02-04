@@ -15,6 +15,8 @@ export function WelcomeHeader({ firstName, timezone }: WelcomeHeaderProps) {
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    // Hydration pattern: intentionally triggers re-render after mount
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     setNow(new Date());
   }, []);

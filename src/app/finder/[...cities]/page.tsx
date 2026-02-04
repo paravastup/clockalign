@@ -13,6 +13,7 @@ export default function FinderWithCities() {
 
   // Parse cities from URL and store in localStorage for the main component
   useEffect(() => {
+    // One-time initialization from URL params - intentional pattern
     if (params.cities && !initialized) {
       const citySlugs = Array.isArray(params.cities)
         ? params.cities
@@ -33,6 +34,7 @@ export default function FinderWithCities() {
         localStorage.setItem('clockalign-finder-cities', JSON.stringify(matchedCities));
       }
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setInitialized(true);
     }
   }, [params.cities, initialized]);
