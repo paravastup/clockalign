@@ -397,12 +397,80 @@ export interface Database {
           accepted_at?: string | null
         }
       }
+      calendar_tokens: {
+        Row: {
+          id: string
+          user_id: string
+          provider: string
+          access_token: string
+          refresh_token: string | null
+          expiry_date: number | null // Unix timestamp in milliseconds
+          scope: string | null
+          connected_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          provider?: string
+          access_token: string
+          refresh_token?: string | null
+          expiry_date?: number | null
+          scope?: string | null
+          connected_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          provider?: string
+          access_token?: string
+          refresh_token?: string | null
+          expiry_date?: number | null
+          scope?: string | null
+          connected_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      upsert_calendar_token: {
+        Args: {
+          p_user_id: string
+          p_access_token: string
+          p_refresh_token?: string | null
+          p_expiry_date?: number | null
+          p_scope?: string | null
+          p_provider?: string
+        }
+        Returns: {
+          id: string
+          user_id: string
+          provider: string
+          access_token: string
+          refresh_token: string | null
+          expiry_date: number | null
+          scope: string | null
+          connected_at: string
+          updated_at: string
+        }
+      }
+      has_calendar_connection: {
+        Args: {
+          p_user_id?: string | null
+          p_provider?: string
+        }
+        Returns: boolean
+      }
+      revoke_calendar_connection: {
+        Args: {
+          p_provider?: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

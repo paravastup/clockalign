@@ -4,19 +4,10 @@
  */
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { generateReferralCode } from '@/lib/security/code-generation'
 
-/**
- * Generate a unique referral code
- * Format: REF_ + 8 alphanumeric characters
- */
-function generateReferralCode(): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
-  let code = 'REF_'
-  for (let i = 0; i < 8; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return code
-}
+// SECURITY: generateReferralCode is now imported from @/lib/security/code-generation
+// which uses crypto.randomBytes() instead of Math.random()
 
 export async function GET() {
   try {

@@ -114,10 +114,7 @@ export function LandingPage() {
               </Button>
             </Link>
             <Link href="/login">
-              <Button
-                className="bg-[hsl(var(--brand))] hover:bg-[hsl(173_58%_35%)] text-white h-9"
-                size="sm"
-              >
+              <Button size="sm" className="bg-[hsl(var(--brand))] hover:bg-[hsl(173_58%_35%)] text-white">
                 Get Started
               </Button>
             </Link>
@@ -168,15 +165,12 @@ export function LandingPage() {
                       <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
                     </button>
                   )}
-                  <Link href="/login" className="block">
-                    <Button variant="outline" className="w-full">
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link href="/login" className="block">
-                    <Button
-                      className="w-full bg-[hsl(var(--brand))] hover:bg-[hsl(173_58%_35%)] text-white"
-                    >
+                  <Link
+                    href="/login"
+                    className="w-full"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Button className="w-full bg-[hsl(var(--brand))] hover:bg-[hsl(173_58%_35%)] text-white">
                       Get Started
                     </Button>
                   </Link>

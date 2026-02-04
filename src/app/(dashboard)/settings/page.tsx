@@ -5,28 +5,37 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { SettingsForm } from './settings-form'
+import { hasCalendarConnection } from '@/lib/calendar/tokens'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user) {
     redirect('/login')
   }
 
-  // Fetch user profile
+  // Fetch user profile - only select needed columns (NOT SELECT *)
+  // This prevents accidentally exposing sensitive data like calendar tokens
   interface UserProfile {
     name: string | null
     timezone: string
     avatar_url: string | null
     energy_profile: unknown
-    preferences: Record<string, unknown>
+    preferences: {
+      email_notifications?: boolean
+      meeting_reminders?: boolean
+      weekly_digest?: boolean
+    } | null
   }
   const { data: profile } = await supabase
     .from('users')
-    .select('*')
+    .select('name, timezone, avatar_url, energy_profile, preferences')
     .eq('id', user.id)
     .single() as { data: UserProfile | null }
+
+  // Check calendar connection status via RPC (tokens stored in separate table)
+  const calendarConnected = await hasCalendarConnection(supabase, user.id)
 
   // Merge auth user data with profile
   const userData = {
@@ -47,6 +56,7 @@ export default async function SettingsPage() {
       meeting_reminders?: boolean
       weekly_digest?: boolean
     },
+    calendarConnected,
   }
 
   return (

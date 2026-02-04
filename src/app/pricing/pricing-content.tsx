@@ -195,27 +195,37 @@ export function PricingContent() {
             <CardContent className="space-y-6">
               {isPro ? (
                 <Button
-                  disabled
-                  className="w-full rounded-full h-12 text-base bg-emerald-600"
+                  variant="outline"
+                  className="w-full rounded-full h-12 text-base"
+                  asChild
                 >
-                  <Check className="mr-2 h-5 w-5" />
-                  Current Plan
+                  <Link href="/settings">
+                    Manage Subscription
+                  </Link>
+                </Button>
+              ) : isLoading ? (
+                <Button
+                  disabled
+                  className="w-full rounded-full h-12 text-base bg-gradient-to-r from-amber-500 to-orange-500"
+                >
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading...
                 </Button>
               ) : (
                 <Button
                   onClick={handleUpgrade}
-                  disabled={isLoading || checkoutLoading}
-                  className="w-full rounded-full h-12 text-base bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg shadow-amber-500/30"
+                  disabled={checkoutLoading}
+                  className="w-full rounded-full h-12 text-base bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg shadow-amber-500/25"
                 >
                   {checkoutLoading ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Loading...
                     </>
                   ) : (
                     <>
                       Start 7-Day Free Trial
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      <ArrowRight className="ml-2 h-4 w-4" />
                     </>
                   )}
                 </Button>

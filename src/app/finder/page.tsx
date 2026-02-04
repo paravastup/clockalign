@@ -91,20 +91,20 @@ function getEnergyLevel(hour: number): EnergyLevel {
   return 'sleep';
 }
 
-// Colors matching old design (using -300 shades for subtle pastel look)
+// Colors matching old design (using -300 shades for light mode, -600/-700 for dark mode)
 const ENERGY_COLORS: Record<EnergyLevel, string> = {
-  peak: 'bg-emerald-300',
-  ok: 'bg-yellow-300',
-  earlyLate: 'bg-orange-300',
-  night: 'bg-violet-300',
+  peak: 'bg-emerald-300 dark:bg-emerald-700',
+  ok: 'bg-yellow-300 dark:bg-yellow-600',
+  earlyLate: 'bg-orange-300 dark:bg-orange-600',
+  night: 'bg-violet-300 dark:bg-violet-700',
   sleep: 'bg-slate-200 dark:bg-slate-700',
 };
 
 const ENERGY_TEXT_COLORS: Record<EnergyLevel, string> = {
-  peak: 'text-emerald-800',
-  ok: 'text-yellow-800',
-  earlyLate: 'text-orange-800',
-  night: 'text-violet-800',
+  peak: 'text-emerald-800 dark:text-emerald-100',
+  ok: 'text-yellow-800 dark:text-yellow-100',
+  earlyLate: 'text-orange-800 dark:text-orange-100',
+  night: 'text-violet-800 dark:text-violet-100',
   sleep: 'text-slate-500 dark:text-slate-400',
 };
 
@@ -133,18 +133,25 @@ const DEFAULT_CITIES: City[] = [
 // HELPER FUNCTIONS
 // ============================================
 
+// Number of hours to show before and after the selected day for centering
+const HOURS_BEFORE = 12;
+const HOURS_AFTER = 12;
+const TOTAL_SLOTS = (24 + HOURS_BEFORE + HOURS_AFTER) * 2; // 96 half-hour slots
+
 function generateTimeSlots(date: DateTime): TimeSlot[] {
   const slots: TimeSlot[] = [];
-  const baseDate = date.startOf('day').toUTC();
+  // Get UTC midnight of the selected date, then subtract HOURS_BEFORE
+  // Using DateTime.utc() ensures we start from UTC midnight, not local midnight
+  const utcMidnight = DateTime.utc(date.year, date.month, date.day);
+  const baseDate = utcMidnight.minus({ hours: HOURS_BEFORE });
 
-  for (let i = 0; i < 48; i++) {
-    const hour = Math.floor(i / 2);
-    const minute = (i % 2) * 30;
+  for (let i = 0; i < TOTAL_SLOTS; i++) {
+    const slotDateTime = baseDate.plus({ minutes: i * 30 });
     slots.push({
       index: i,
-      hour,
-      minute,
-      utcDateTime: baseDate.set({ hour, minute }),
+      hour: slotDateTime.hour,
+      minute: slotDateTime.minute,
+      utcDateTime: slotDateTime,
     });
   }
   return slots;
@@ -451,8 +458,9 @@ export default function FairTimeFinder() {
     if (!isToday) return null;
 
     // Use UTC time since slots are ordered by UTC
+    // Add HOURS_BEFORE offset since slots start 12h before midnight
     const nowUtc = now.toUTC();
-    const totalMinutes = nowUtc.hour * 60 + nowUtc.minute;
+    const totalMinutes = (HOURS_BEFORE * 60) + nowUtc.hour * 60 + nowUtc.minute;
     const slotWidth = 64; // w-16 = 64px
     const position = (totalMinutes / 30) * slotWidth;
     return position;
@@ -497,21 +505,23 @@ export default function FairTimeFinder() {
       const now = DateTime.now();
       const isToday = DateTime.fromJSDate(selectedDate).hasSame(now, 'day');
       const stickyColumnWidth = 288; // w-72 = 288px
-      const viewportWidth = gridRef.current.clientWidth - stickyColumnWidth;
+      const viewportWidth = gridRef.current.clientWidth;
+      // Effective scrollable viewport (visual area after sticky column)
+      const effectiveViewport = viewportWidth - stickyColumnWidth;
 
       if (isToday && currentTimePosition !== null) {
-        const scrollPosition = currentTimePosition - viewportWidth / 2;
+        const scrollPosition = currentTimePosition - effectiveViewport / 2;
         gridRef.current.scrollTo({ left: Math.max(0, scrollPosition), behavior: 'smooth' });
       } else if (bestSlotIndex !== null) {
         const slotWidth = 64; // w-16 = 64px
-        const scrollPosition = bestSlotIndex * slotWidth - viewportWidth / 2;
+        const scrollPosition = bestSlotIndex * slotWidth - effectiveViewport / 2;
         gridRef.current.scrollTo({ left: Math.max(0, scrollPosition), behavior: 'smooth' });
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, cities.length > 0]);
 
-  // Auto-scroll back to today after 7 seconds of inactivity
+  // Auto-scroll back to today after 30 seconds of inactivity
   const resetInactivityTimer = useCallback(() => {
     if (inactivityTimerRef.current) {
       clearTimeout(inactivityTimerRef.current);
@@ -524,17 +534,18 @@ export default function FairTimeFinder() {
       // Scroll grid to current time after state updates
       setTimeout(() => {
         if (gridRef.current) {
+          // Add HOURS_BEFORE offset since slots start 12h before midnight
           const nowUtc = DateTime.utc();
-          const totalMinutes = nowUtc.hour * 60 + nowUtc.minute;
+          const totalMinutes = (HOURS_BEFORE * 60) + nowUtc.hour * 60 + nowUtc.minute;
           const slotWidth = 64;
           const stickyColumnWidth = 288;
           const currentPos = (totalMinutes / 30) * slotWidth;
-          const viewportWidth = gridRef.current.clientWidth - stickyColumnWidth;
-          const scrollPosition = currentPos - viewportWidth / 2;
+          const viewportWidth = gridRef.current.clientWidth;
+          const scrollPosition = currentPos - (viewportWidth - stickyColumnWidth) / 2;
           gridRef.current.scrollTo({ left: Math.max(0, scrollPosition), behavior: 'smooth' });
         }
       }, 100);
-    }, 7000);
+    }, 30000); // 30 seconds
   }, []);
 
   // Track user interactions for inactivity timer
@@ -601,13 +612,14 @@ export default function FairTimeFinder() {
     setTimeout(() => {
       if (gridRef.current) {
         // Use UTC time since slots are ordered by UTC
+        // Add HOURS_BEFORE offset since slots start 12h before midnight
         const nowUtc = DateTime.utc();
-        const totalMinutes = nowUtc.hour * 60 + nowUtc.minute;
+        const totalMinutes = (HOURS_BEFORE * 60) + nowUtc.hour * 60 + nowUtc.minute;
         const slotWidth = 64;
-        const stickyColumnWidth = 288; // w-72 = 288px
         const currentPos = (totalMinutes / 30) * slotWidth;
-        const viewportWidth = gridRef.current.clientWidth - stickyColumnWidth;
-        const scrollPosition = currentPos - viewportWidth / 2;
+        const viewportWidth = gridRef.current.clientWidth;
+        const stickyColumnWidth = 288; // w-72 = 288px
+        const scrollPosition = currentPos - (viewportWidth - stickyColumnWidth) / 2;
         gridRef.current.scrollTo({ left: Math.max(0, scrollPosition), behavior: 'smooth' });
       }
     }, 100);
@@ -617,8 +629,9 @@ export default function FairTimeFinder() {
     resetInactivityTimer();
     if (gridRef.current && currentTimePosition !== null) {
       const stickyColumnWidth = 288; // w-72 = 288px
-      const viewportWidth = gridRef.current.clientWidth - stickyColumnWidth;
-      const scrollPosition = currentTimePosition - viewportWidth / 2;
+      const viewportWidth = gridRef.current.clientWidth;
+      // Center in the visible area after the sticky column
+      const scrollPosition = currentTimePosition - (viewportWidth - stickyColumnWidth) / 2;
       gridRef.current.scrollTo({ left: Math.max(0, scrollPosition), behavior: 'smooth' });
     }
   };
@@ -628,8 +641,9 @@ export default function FairTimeFinder() {
     if (gridRef.current && bestSlotIndex !== null) {
       const slotWidth = 64; // w-16 = 64px
       const stickyColumnWidth = 288; // w-72 = 288px
-      const viewportWidth = gridRef.current.clientWidth - stickyColumnWidth;
-      const scrollPosition = bestSlotIndex * slotWidth - viewportWidth / 2;
+      const viewportWidth = gridRef.current.clientWidth;
+      // Center in the visible area after the sticky column
+      const scrollPosition = bestSlotIndex * slotWidth - (viewportWidth - stickyColumnWidth) / 2;
       gridRef.current.scrollTo({ left: Math.max(0, scrollPosition), behavior: 'smooth' });
     }
   };
@@ -679,16 +693,82 @@ export default function FairTimeFinder() {
     setShowSelectionPanel(false);
   }, []);
 
-  const copySelectionToClipboard = useCallback(() => {
-    if (!selectionDetails) return;
+  // Generate share text for clipboard
+  const generateShareText = useCallback(() => {
+    if (!selectionDetails) return '';
 
     const lines = selectionDetails.cityDetails.map(d =>
       `${d.city.flag} ${d.city.name}: ${d.startTime} – ${d.endTime} (${d.points}pt)`
     );
-    const text = `Meeting Time (${selectionDetails.durationFormatted})\n${lines.join('\n')}\nTotal Sacrifice: ${selectionDetails.totalPoints}pts`;
-
-    navigator.clipboard.writeText(text);
+    return [
+      `🏆 Meeting Time (${selectionDetails.durationFormatted})`,
+      '',
+      ...lines,
+      '',
+      `📊 Total Sacrifice: ${selectionDetails.totalPoints}pts`,
+      '',
+      '⚡ Found with ClockAlign - Fair meetings for global teams',
+      'https://clockalign.app/finder',
+    ].join('\n');
   }, [selectionDetails]);
+
+  // Generate tweet text (shorter for Twitter)
+  const generateTweetText = useCallback(() => {
+    if (!selectionDetails) return '';
+
+    const topScorers = selectionDetails.cityDetails
+      .sort((a, b) => b.points - a.points)
+      .slice(0, 3)
+      .map(d => `${d.city.flag}${d.points}pt`)
+      .join(' | ');
+
+    return [
+      `🏆 Meeting sacrifice: ${topScorers}`,
+      '',
+      `Total: ${selectionDetails.totalPoints}pts`,
+      selectionDetails.shouldSuggestAsync ? '💡 Consider async!' : '',
+      '',
+      'Find fair meeting times at @clockalign',
+    ].filter(Boolean).join('\n');
+  }, [selectionDetails]);
+
+  const copySelectionToClipboard = useCallback(() => {
+    if (!selectionDetails) return;
+
+    const text = generateShareText();
+    navigator.clipboard.writeText(text);
+  }, [selectionDetails, generateShareText]);
+
+  const shareToTwitter = useCallback(() => {
+    if (!selectionDetails) return;
+
+    const text = encodeURIComponent(generateTweetText());
+    const url = encodeURIComponent('https://clockalign.app/finder');
+    window.open(
+      `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+      '_blank',
+      'width=550,height=420'
+    );
+  }, [selectionDetails, generateTweetText]);
+
+  const shareNative = useCallback(async () => {
+    if (!selectionDetails) return;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Meeting Times from ClockAlign',
+          text: generateShareText(),
+          url: 'https://clockalign.app/finder',
+        });
+      } catch {
+        // User cancelled, fallback to copy
+        copySelectionToClipboard();
+      }
+    } else {
+      copySelectionToClipboard();
+    }
+  }, [selectionDetails, generateShareText, copySelectionToClipboard]);
 
   if (!mounted) {
     return (
@@ -1022,23 +1102,23 @@ export default function FairTimeFinder() {
         <div className="flex items-center gap-5 text-sm">
           <span className="text-slate-500 dark:text-slate-400">Energy:</span>
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded bg-emerald-300" />
+            <div className="w-4 h-4 rounded bg-emerald-300 dark:bg-emerald-700" />
             <span className="text-slate-600 dark:text-slate-300">Peak</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded bg-yellow-300" />
+            <div className="w-4 h-4 rounded bg-yellow-300 dark:bg-yellow-600" />
             <span className="text-slate-600 dark:text-slate-300">OK</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded bg-orange-300" />
+            <div className="w-4 h-4 rounded bg-orange-300 dark:bg-orange-600" />
             <span className="text-slate-600 dark:text-slate-300">Early/Late</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded bg-violet-300" />
+            <div className="w-4 h-4 rounded bg-violet-300 dark:bg-violet-700" />
             <span className="text-slate-600 dark:text-slate-300">Night</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className={cn("w-4 h-4 rounded", isDark ? "bg-slate-600" : "bg-slate-200")} />
+            <div className="w-4 h-4 rounded bg-slate-200 dark:bg-slate-700" />
             <span className="text-slate-600 dark:text-slate-300">Sleep</span>
           </div>
         </div>
@@ -1065,12 +1145,9 @@ export default function FairTimeFinder() {
             <div
               ref={gridRef}
               className="overflow-x-auto scrollbar-visible"
-              style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#cbd5e1 #f1f5f9',
-              }}
+              style={{ scrollbarWidth: 'thin' }}
             >
-              <div className="min-w-[3200px] relative">
+              <div className="min-w-[6450px] relative">
                 {cities.map((city, cityIndex) => {
                   const currentLocalTime = DateTime.now().setZone(city.timezone);
                   const offset = cityIndex > 0 ? calculateRelativeOffset(city.timezone, cities[0].timezone) : null;
@@ -1091,7 +1168,7 @@ export default function FairTimeFinder() {
                       )}
                     >
                       {/* City Label - sticky so it doesn't scroll with time grid */}
-                      <div className="w-72 flex-shrink-0 h-16 px-5 bg-white dark:bg-slate-800/50 border-r border-slate-200 dark:border-slate-700 sticky left-0 z-10 flex items-center">
+                      <div className="w-72 flex-shrink-0 h-16 px-5 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 sticky left-0 z-10 flex items-center">
                         <div className="flex items-center w-full">
                           <span className="text-3xl flex-shrink-0 mr-4">{city.flag}</span>
                           <div className="flex-shrink-0">
@@ -1364,10 +1441,16 @@ export default function FairTimeFinder() {
                 >
                   <Copy className="w-4 h-4" /> Copy
                 </button>
-                <button className="flex-1 h-9 border border-slate-200 dark:border-slate-600 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-300">
+                <button
+                  onClick={shareToTwitter}
+                  className="flex-1 h-9 border border-sky-200 dark:border-sky-800 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 hover:bg-sky-50 dark:hover:bg-sky-900/30 transition-colors text-sky-600 dark:text-sky-400"
+                >
                   Tweet
                 </button>
-                <button className="flex-1 h-9 border border-slate-200 dark:border-slate-600 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-300">
+                <button
+                  onClick={shareNative}
+                  className="flex-1 h-9 border border-slate-200 dark:border-slate-600 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-300"
+                >
                   <Share2 className="w-4 h-4" /> Share
                 </button>
               </div>

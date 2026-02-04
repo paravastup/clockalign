@@ -107,9 +107,9 @@ export default function LoginPage() {
         
         <CardContent className="space-y-5">
           {/* Google Sign In */}
-          <Button 
-            variant="outline" 
-            className="w-full h-12 rounded-xl font-medium bg-white hover:bg-zinc-50 transition-all duration-300 border-zinc-200 hover:border-zinc-300 shadow-sm" 
+          <Button
+            variant="outline"
+            className="w-full h-12 rounded-xl font-medium bg-white hover:bg-zinc-50 text-zinc-700 transition-all duration-300 border-zinc-200 hover:border-zinc-300 dark:border-zinc-600 shadow-sm"
             onClick={handleGoogleSignIn}
             disabled={loading}
           >

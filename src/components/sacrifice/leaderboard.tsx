@@ -195,10 +195,10 @@ export function SacrificeLeaderboard({ teamId, onMemberClick }: LeaderboardProps
       
       {/* Fairness Alerts */}
       {data.fairnessAlerts.length > 0 && (
-        <Card className="border-yellow-300 bg-yellow-50 dark:bg-yellow-950">
+        <Card className="border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/30">
           <CardContent className="py-4">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
+              <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-yellow-800 dark:text-yellow-200">
                   Fairness Alert
@@ -312,7 +312,7 @@ export function SacrificeLeaderboard({ teamId, onMemberClick }: LeaderboardProps
                       {(entry.worstSlotCount.lateNight + entry.worstSlotCount.night) > 0 && (
                         <Tooltip>
                           <TooltipTrigger>
-                            <Badge variant="secondary" className="h-6 bg-orange-100 text-orange-700">
+                            <Badge variant="secondary" className="h-6 bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300">
                               <Coffee className="h-3 w-3 mr-1" />
                               {entry.worstSlotCount.lateNight + entry.worstSlotCount.night}
                             </Badge>
@@ -325,7 +325,7 @@ export function SacrificeLeaderboard({ teamId, onMemberClick }: LeaderboardProps
                       {entry.worstSlotCount.earlyMorning > 0 && (
                         <Tooltip>
                           <TooltipTrigger>
-                            <Badge variant="secondary" className="h-6 bg-yellow-100 text-yellow-700">
+                            <Badge variant="secondary" className="h-6 bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300">
                               <Sun className="h-3 w-3 mr-1" />
                               {entry.worstSlotCount.earlyMorning}
                             </Badge>

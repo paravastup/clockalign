@@ -88,8 +88,8 @@ export function GoldenWindowsHeatmap({
                   key={hour}
                   className={cn(
                     'flex-1 text-center text-xs font-medium',
-                    highlightedHours.includes(hour) 
-                      ? 'text-green-600 font-bold' 
+                    highlightedHours.includes(hour)
+                      ? 'text-green-600 dark:text-green-400 font-bold'
                       : 'text-muted-foreground',
                     compact && !hourLabels.includes(hour) && 'invisible'
                   )}
@@ -252,13 +252,13 @@ function CombinedScoreRow({
   onHourClick
 }: CombinedScoreRowProps) {
   return (
-    <div className="flex items-center border-t-2 border-gray-200 mt-1 pt-1">
+    <div className="flex items-center border-t-2 border-gray-200 dark:border-gray-700 mt-1 pt-1">
       {/* Label */}
       <div className={cn(
         'flex-shrink-0 py-1',
         compact ? 'w-24' : 'w-40'
       )}>
-        <div className="text-sm font-semibold text-green-700">
+        <div className="text-sm font-semibold text-green-700 dark:text-green-400">
           Golden Score
         </div>
         <div className="text-xs text-muted-foreground">
@@ -340,7 +340,7 @@ export function HeatmapLegend({ className }: { className?: string }) {
           return (
             <div key={level.label} className="flex items-center gap-1.5">
               <div className={cn(
-                'w-4 h-4 rounded-sm border border-gray-200',
+                'w-4 h-4 rounded-sm border border-gray-200 dark:border-gray-700',
                 colors.bg
               )} />
               <span className="text-xs text-muted-foreground">

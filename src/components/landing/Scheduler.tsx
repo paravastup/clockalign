@@ -69,11 +69,11 @@ export function Scheduler() {
 
   const getSharpnessColor = (level: string) => {
     switch (level) {
-      case 'peak': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      case 'good': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'fair': return 'bg-amber-100 text-amber-700 border-amber-200';
-      case 'low': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'peak': return 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700';
+      case 'good': return 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700';
+      case 'fair': return 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-700';
+      case 'low': return 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700';
+      default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300';
     }
   };
 
@@ -251,13 +251,13 @@ export function Scheduler() {
                   exit={{ opacity: 0, y: -16 }}
                   className="mb-4"
                 >
-                  <Card className="p-4 border-amber-200 bg-amber-50">
+                  <Card className="p-4 border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30">
                     <div className="flex items-start gap-3">
-                      <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-semibold text-foreground">Async Nudge</h4>
-                          <Badge variant="outline" className="text-xs border-amber-300 text-amber-700">
+                          <Badge variant="outline" className="text-xs border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-300">
                             {asyncSuggestion.confidence}% confidence
                           </Badge>
                         </div>
@@ -265,7 +265,7 @@ export function Scheduler() {
                           {asyncSuggestion.reason}
                         </p>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline" className="text-xs h-8 border-amber-300">
+                          <Button size="sm" variant="outline" className="text-xs h-8 border-amber-300 dark:border-amber-600">
                             Create Loom Instead
                           </Button>
                           <Button 
@@ -307,10 +307,10 @@ export function Scheduler() {
                         exit={{ opacity: 0, y: -16 }}
                         transition={{ delay: index * 0.04 }}
                       >
-                        <Card 
+                        <Card
                           className={`p-4 cursor-pointer transition-all border hover:shadow-card ${
                             selectedSlot?.startTime === slot.startTime
-                              ? 'border-[hsl(var(--brand))] shadow-card bg-[hsl(var(--brand-light))]'
+                              ? 'border-[hsl(var(--brand))] shadow-card bg-[hsl(var(--brand-light))] dark:bg-teal-900/30'
                               : 'border-border'
                           }`}
                           onClick={() => setSelectedSlot(slot)}
@@ -337,14 +337,14 @@ export function Scheduler() {
                                   Golden
                                 </Badge>
                               )}
-                              <Badge 
-                                variant="outline" 
+                              <Badge
+                                variant="outline"
                                 className={`text-xs ${
-                                  slot.fairnessScore >= 80 
-                                    ? 'border-emerald-300 text-emerald-700 bg-emerald-50' 
-                                    : slot.fairnessScore >= 60 
-                                      ? 'border-amber-300 text-amber-700 bg-amber-50'
-                                      : 'border-red-300 text-red-700 bg-red-50'
+                                  slot.fairnessScore >= 80
+                                    ? 'border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30'
+                                    : slot.fairnessScore >= 60
+                                      ? 'border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30'
+                                      : 'border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/30'
                                 }`}
                               >
                                 Fairness: {slot.fairnessScore}%

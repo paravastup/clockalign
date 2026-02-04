@@ -185,6 +185,9 @@
     --border: 175 20% 15%;
     --input: 175 20% 15%;
     --ring: 173 58% 39%;
+
+    /* Brand Colors for Dark Mode */
+    --brand-light: 173 40% 15%;
   }
 }
 
@@ -239,6 +242,12 @@
 
   .bg-gradient-subtle {
     background: linear-gradient(180deg, hsl(172 20% 98%) 0%, hsl(0 0% 100%) 100%);
+  }
+  .dark .bg-gradient-subtle {
+    background: linear-gradient(180deg, hsl(175 40% 8%) 0%, hsl(175 40% 5%) 100%);
+  }
+  .dark .bg-gradient-hero {
+    background: linear-gradient(180deg, hsl(175 40% 8%) 0%, hsl(175 40% 5%) 100%);
   }
   
   /* Shadows */

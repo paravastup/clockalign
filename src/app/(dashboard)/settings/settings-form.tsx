@@ -40,6 +40,7 @@ interface UserData {
     meeting_reminders?: boolean
     weekly_digest?: boolean
   }
+  calendarConnected?: boolean
 }
 
 interface SettingsFormProps {

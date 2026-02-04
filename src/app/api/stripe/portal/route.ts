@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { stripe } from '@/lib/stripe'
+import { getCanonicalOrigin } from '@/lib/security/url-validation'
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,8 +36,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get the return URL
-    const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    // SECURITY: Use canonical origin instead of trusting Origin header
+    const origin = getCanonicalOrigin()
 
     // Create billing portal session
     const portalSession = await stripe().billingPortal.sessions.create({

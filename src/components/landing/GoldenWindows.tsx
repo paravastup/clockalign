@@ -54,21 +54,21 @@ const getSharpnessColor = (sharpness: string) => {
 
 const getSharpnessTextColor = (sharpness: string) => {
   switch (sharpness) {
-    case 'peak': return 'text-emerald-600';
-    case 'good': return 'text-blue-600';
-    case 'fair': return 'text-amber-600';
-    case 'low': return 'text-red-600';
-    default: return 'text-gray-500';
+    case 'peak': return 'text-emerald-600 dark:text-emerald-400';
+    case 'good': return 'text-blue-600 dark:text-blue-400';
+    case 'fair': return 'text-amber-600 dark:text-amber-400';
+    case 'low': return 'text-red-600 dark:text-red-400';
+    default: return 'text-gray-500 dark:text-gray-400';
   }
 };
 
 const getSharpnessBgColor = (sharpness: string) => {
   switch (sharpness) {
-    case 'peak': return 'bg-emerald-50 border-emerald-200';
-    case 'good': return 'bg-blue-50 border-blue-200';
-    case 'fair': return 'bg-amber-50 border-amber-200';
-    case 'low': return 'bg-red-50 border-red-200';
-    default: return 'bg-gray-50 border-gray-200';
+    case 'peak': return 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800';
+    case 'good': return 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800';
+    case 'fair': return 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800';
+    case 'low': return 'bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800';
+    default: return 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700';
   }
 };
 
@@ -90,9 +90,9 @@ export function GoldenWindows() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-200 mb-6">
-            <Sun className="w-4 h-4 text-amber-600" />
-            <span className="text-sm text-amber-700">Cognitive Science Powered</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 mb-6">
+            <Sun className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <span className="text-sm text-amber-700 dark:text-amber-300">Cognitive Science Powered</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4 text-foreground">
             Golden <span className="text-gradient">Windows</span>
@@ -198,7 +198,7 @@ export function GoldenWindows() {
 
               {/* Golden Window Highlight */}
               <div className="absolute top-0 left-[38%] w-[12%] h-full pointer-events-none hidden sm:block">
-                <div className="absolute inset-0 bg-amber-100/50 border-x-2 border-amber-300/50" />
+                <div className="absolute inset-0 bg-amber-100/50 dark:bg-amber-900/30 border-x-2 border-amber-300/50 dark:border-amber-600/50" />
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
                   <Badge className="bg-amber-500 text-white text-xs">
                     <Sun className="w-3 h-3 mr-1" />
@@ -236,16 +236,16 @@ export function GoldenWindows() {
             description="Best for: Status updates, light discussions, email"
             color="amber"
           />
-          <Card className="p-4 border-red-200 bg-red-50">
+          <Card className="p-4 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/50">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-3 h-3 rounded-full bg-red-500" />
-              <h4 className="font-semibold text-red-700">Low Performance</h4>
+              <h4 className="font-semibold text-red-700 dark:text-red-300">Low Performance</h4>
             </div>
             <p className="text-sm text-muted-foreground mb-3">
               Avoid meetings during these hours
             </p>
             <div className="flex flex-wrap gap-1">
-              <Badge variant="outline" className="text-xs border-red-300 text-red-700">8 PM - 8 AM</Badge>
+              <Badge variant="outline" className="text-xs border-red-300 dark:border-red-700 text-red-700 dark:text-red-300">8 PM - 8 AM</Badge>
             </div>
             <p className="text-xs text-muted-foreground mt-3">
               Sleep hours, evening wind-down. Schedule async instead.
@@ -297,22 +297,22 @@ export function GoldenWindows() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="mt-6 p-5 rounded-xl bg-[hsl(var(--brand-light))] border border-[hsl(var(--brand))]/20"
+          className="mt-6 p-5 rounded-xl bg-[hsl(var(--brand-light))] dark:bg-slate-800/50 border border-[hsl(var(--brand))]/20 dark:border-slate-700"
         >
           <div className="flex items-start gap-4">
-            <Info className="w-5 h-5 text-[hsl(var(--brand))] flex-shrink-0 mt-0.5" />
+            <Info className="w-5 h-5 text-[hsl(var(--brand))] dark:text-teal-400 flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-semibold mb-2 text-foreground">The Science Behind Golden Windows</h4>
+              <h4 className="font-semibold mb-2 text-slate-900 dark:text-white">The Science Behind Golden Windows</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                Our algorithm is based on decades of chronobiology research. Everyone has a unique 
-                circadian rhythm, but most people experience similar patterns of cognitive performance 
+                Our algorithm is based on decades of chronobiology research. Everyone has a unique
+                circadian rhythm, but most people experience similar patterns of cognitive performance
                 throughout the day.
               </p>
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="text-xs border-[hsl(var(--brand))]/30 text-[hsl(var(--brand))]">Circadian Rhythms</Badge>
-                <Badge variant="outline" className="text-xs border-[hsl(var(--brand))]/30 text-[hsl(var(--brand))]">Ultradian Cycles</Badge>
-                <Badge variant="outline" className="text-xs border-[hsl(var(--brand))]/30 text-[hsl(var(--brand))]">Sleep Science</Badge>
-                <Badge variant="outline" className="text-xs border-[hsl(var(--brand))]/30 text-[hsl(var(--brand))]">Cognitive Psychology</Badge>
+                <Badge variant="outline" className="text-xs border-[hsl(var(--brand))]/30 dark:border-teal-600/50 text-[hsl(var(--brand))] dark:text-teal-400">Circadian Rhythms</Badge>
+                <Badge variant="outline" className="text-xs border-[hsl(var(--brand))]/30 dark:border-teal-600/50 text-[hsl(var(--brand))] dark:text-teal-400">Ultradian Cycles</Badge>
+                <Badge variant="outline" className="text-xs border-[hsl(var(--brand))]/30 dark:border-teal-600/50 text-[hsl(var(--brand))] dark:text-teal-400">Sleep Science</Badge>
+                <Badge variant="outline" className="text-xs border-[hsl(var(--brand))]/30 dark:border-teal-600/50 text-[hsl(var(--brand))] dark:text-teal-400">Cognitive Psychology</Badge>
               </div>
             </div>
           </div>
@@ -336,10 +336,10 @@ function StatCard({
   color: string;
 }) {
   const colorClasses: Record<string, string> = {
-    emerald: 'text-emerald-600',
-    blue: 'text-blue-600',
-    amber: 'text-amber-600',
-    red: 'text-red-600',
+    emerald: 'text-emerald-600 dark:text-emerald-400',
+    blue: 'text-blue-600 dark:text-blue-400',
+    amber: 'text-amber-600 dark:text-amber-400',
+    red: 'text-red-600 dark:text-red-400',
   };
 
   return (
@@ -375,15 +375,15 @@ function TimeCategoryCard({
   color: string;
 }) {
   const bgColors: Record<string, string> = {
-    emerald: 'bg-emerald-50 border-emerald-200',
-    blue: 'bg-blue-50 border-blue-200',
-    amber: 'bg-amber-50 border-amber-200',
+    emerald: 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800',
+    blue: 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800',
+    amber: 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800',
   };
 
   const textColors: Record<string, string> = {
-    emerald: 'text-emerald-700',
-    blue: 'text-blue-700',
-    amber: 'text-amber-700',
+    emerald: 'text-emerald-700 dark:text-emerald-300',
+    blue: 'text-blue-700 dark:text-blue-300',
+    amber: 'text-amber-700 dark:text-amber-300',
   };
 
   const dotColors: Record<string, string> = {

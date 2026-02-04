@@ -4,13 +4,22 @@
  */
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import {
+  getCanonicalOrigin,
+  sanitizeRedirectPath,
+} from '@/lib/security/url-validation'
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/dashboard'
   const error = searchParams.get('error')
   const error_description = searchParams.get('error_description')
+
+  // SECURITY: Use canonical origin instead of trusting request origin
+  const origin = getCanonicalOrigin()
+
+  // SECURITY: Validate and sanitize the redirect path to prevent open redirect
+  const next = sanitizeRedirectPath(searchParams.get('next'), '/dashboard')
 
   // Handle errors from Supabase
   if (error) {

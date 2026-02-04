@@ -4,6 +4,7 @@
  */
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { generateInviteCode } from '@/lib/security/code-generation'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -135,8 +136,5 @@ export async function GET(request: Request, { params }: RouteParams) {
   return NextResponse.json({ invites })
 }
 
-function generateInviteCode(): string {
-  return Array.from({ length: 8 }, () => 
-    'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]
-  ).join('')
-}
+// SECURITY: generateInviteCode is now imported from @/lib/security/code-generation
+// which uses crypto.randomBytes() instead of Math.random()

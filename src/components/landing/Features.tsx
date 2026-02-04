@@ -125,19 +125,13 @@ export function Features() {
                 onClick={() => setActiveFeature(feature.id)}
               >
                 <div
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5`}
-                  style={{
-                    background: feature.id === 'sacrifice'
-                      ? 'hsl(172 60% 95%)'
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${
+                    feature.id === 'sacrifice'
+                      ? 'bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400'
                       : feature.id === 'golden'
-                        ? 'hsl(38 92% 95%)'
-                        : 'hsl(260 80% 95%)',
-                    color: feature.id === 'sacrifice'
-                      ? 'hsl(173 58% 39%)'
-                      : feature.id === 'golden'
-                        ? 'hsl(38 92% 45%)'
-                        : 'hsl(260 80% 55%)'
-                  }}
+                        ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400'
+                        : 'bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400'
+                  }`}
                 >
                   {feature.icon}
                 </div>

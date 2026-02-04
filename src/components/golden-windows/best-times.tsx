@@ -158,10 +158,10 @@ function TimeSlotCard({
       onClick={onClick}
       className={cn(
         'p-3 rounded-lg border transition-all',
-        onClick && 'cursor-pointer hover:border-green-300 hover:bg-green-50/50',
-        isSelected && 'border-green-500 bg-green-50',
-        isTop && 'border-green-400 bg-gradient-to-r from-green-50 to-yellow-50',
-        !isTop && !isSelected && 'border-gray-200'
+        onClick && 'cursor-pointer hover:border-green-300 dark:hover:border-green-600 hover:bg-green-50/50 dark:hover:bg-green-900/20',
+        isSelected && 'border-green-500 bg-green-50 dark:bg-green-900/30',
+        isTop && 'border-green-400 dark:border-green-600 bg-gradient-to-r from-green-50 to-yellow-50 dark:from-green-900/30 dark:to-yellow-900/20',
+        !isTop && !isSelected && 'border-gray-200 dark:border-gray-700'
       )}
     >
       {/* Header */}
@@ -199,7 +199,7 @@ function TimeSlotCard({
                   'px-2 py-1 rounded-md text-xs flex items-center gap-1',
                   p.isAvailable
                     ? getSharpnessBackground(p.sharpness)
-                    : 'bg-gray-100 text-gray-500'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                 )}>
                   <span className="font-medium truncate max-w-[100px]">
                     {p.name}
@@ -242,27 +242,27 @@ function TimeSlotCard({
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) {
     return (
-      <div className="w-7 h-7 rounded-full bg-yellow-100 flex items-center justify-center">
+      <div className="w-7 h-7 rounded-full bg-yellow-100 dark:bg-yellow-900/40 flex items-center justify-center">
         <span className="text-lg">🥇</span>
       </div>
     )
   }
   if (rank === 2) {
     return (
-      <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">
+      <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
         <span className="text-lg">🥈</span>
       </div>
     )
   }
   if (rank === 3) {
     return (
-      <div className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center">
+      <div className="w-7 h-7 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center">
         <span className="text-lg">🥉</span>
       </div>
     )
   }
   return (
-    <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium text-gray-600">
+    <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-400">
       #{rank}
     </div>
   )
@@ -273,35 +273,35 @@ function getRecommendationConfig(recommendation: string) {
     case 'excellent':
       return {
         variant: 'default',
-        className: 'bg-green-500 hover:bg-green-600',
+        className: 'bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700',
         icon: <Star className="h-3 w-3 mr-1" />
       }
     case 'good':
       return {
         variant: 'secondary',
-        className: 'bg-green-100 text-green-700 hover:bg-green-200',
+        className: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/60',
         icon: <ThumbsUp className="h-3 w-3 mr-1" />
       }
     case 'acceptable':
       return {
         variant: 'outline',
-        className: 'border-yellow-300 text-yellow-700',
+        className: 'border-yellow-300 dark:border-yellow-700 text-yellow-700 dark:text-yellow-400',
         icon: null
       }
     default:
       return {
         variant: 'outline',
-        className: 'border-gray-300 text-gray-500',
+        className: 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400',
         icon: null
       }
   }
 }
 
 function getSharpnessBackground(sharpness: number): string {
-  if (sharpness >= 90) return 'bg-green-100 text-green-800'
-  if (sharpness >= 70) return 'bg-green-50 text-green-700'
-  if (sharpness >= 50) return 'bg-yellow-50 text-yellow-700'
-  return 'bg-orange-50 text-orange-700'
+  if (sharpness >= 90) return 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200'
+  if (sharpness >= 70) return 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+  if (sharpness >= 50) return 'bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
+  return 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
 }
 
 // ============================================
@@ -345,9 +345,9 @@ export function BestTimesList({
             'px-3 py-2 rounded-lg border text-sm transition-all',
             'flex items-center gap-2',
             selectedHour === slot.utcHour
-              ? 'border-green-500 bg-green-50'
-              : 'border-gray-200 hover:border-green-300',
-            slot.recommendation === 'excellent' && 'ring-1 ring-green-400'
+              ? 'border-green-500 bg-green-50 dark:bg-green-900/30'
+              : 'border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600',
+            slot.recommendation === 'excellent' && 'ring-1 ring-green-400 dark:ring-green-500'
           )}
         >
           <span className="font-medium">
@@ -355,8 +355,8 @@ export function BestTimesList({
           </span>
           <span className={cn(
             'text-xs',
-            slot.goldenScore >= 80 ? 'text-green-600' :
-            slot.goldenScore >= 60 ? 'text-yellow-600' : 'text-orange-600'
+            slot.goldenScore >= 80 ? 'text-green-600 dark:text-green-400' :
+            slot.goldenScore >= 60 ? 'text-yellow-600 dark:text-yellow-400' : 'text-orange-600 dark:text-orange-400'
           )}>
             {slot.goldenScore}%
           </span>
@@ -427,7 +427,7 @@ function StatCard({
   return (
     <div className={cn(
       'p-3 rounded-lg border',
-      highlight ? 'border-green-300 bg-green-50' : 'border-gray-200'
+      highlight ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/30' : 'border-gray-200 dark:border-gray-700'
     )}>
       <div className="flex items-center gap-2 text-muted-foreground mb-1">
         {icon}
@@ -435,7 +435,7 @@ function StatCard({
       </div>
       <div className={cn(
         'text-xl font-semibold',
-        highlight && 'text-green-700'
+        highlight && 'text-green-700 dark:text-green-400'
       )}>
         {value}
       </div>

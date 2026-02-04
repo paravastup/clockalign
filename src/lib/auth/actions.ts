@@ -6,7 +6,10 @@
  */
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
+import {
+  getCanonicalOrigin,
+  isValidInternalPath,
+} from '@/lib/security/url-validation'
 
 export type AuthResult = {
   error?: string
@@ -26,13 +29,16 @@ export async function signInWithMagicLink(formData: FormData): Promise<AuthResul
   }
 
   const supabase = await createClient()
-  const headersList = await headers()
-  const origin = headersList.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  // SECURITY: Use canonical origin instead of trusting Origin header
+  const origin = getCanonicalOrigin()
+
+  // SECURITY: Validate redirect path to prevent open redirect
+  const safeRedirectTo = isValidInternalPath(redirectTo) ? redirectTo : null
 
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${origin}/auth/callback${redirectTo ? `?next=${redirectTo}` : ''}`,
+      emailRedirectTo: `${origin}/auth/callback${safeRedirectTo ? `?next=${safeRedirectTo}` : ''}`,
     },
   })
 
@@ -52,13 +58,16 @@ export async function signInWithMagicLink(formData: FormData): Promise<AuthResul
  */
 export async function signInWithGoogle(redirectTo?: string): Promise<AuthResult> {
   const supabase = await createClient()
-  const headersList = await headers()
-  const origin = headersList.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  // SECURITY: Use canonical origin instead of trusting Origin header
+  const origin = getCanonicalOrigin()
+
+  // SECURITY: Validate redirect path to prevent open redirect
+  const safeRedirectTo = isValidInternalPath(redirectTo) ? redirectTo : null
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${origin}/auth/callback${redirectTo ? `?next=${redirectTo}` : ''}`,
+      redirectTo: `${origin}/auth/callback${safeRedirectTo ? `?next=${safeRedirectTo}` : ''}`,
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',

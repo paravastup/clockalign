@@ -80,13 +80,13 @@ export function NudgeBanner({
           {/* Icon */}
           <div className={cn(
             'p-2 rounded-lg shrink-0',
-            nudge.urgency === 'strong' ? 'bg-orange-100' : 
-            nudge.urgency === 'moderate' ? 'bg-yellow-100' : 'bg-blue-100'
+            nudge.urgency === 'strong' ? 'bg-orange-100 dark:bg-orange-900/40' :
+            nudge.urgency === 'moderate' ? 'bg-yellow-100 dark:bg-yellow-900/40' : 'bg-blue-100 dark:bg-blue-900/40'
           )}>
             <Lightbulb className={cn(
               'h-5 w-5',
-              nudge.urgency === 'strong' ? 'text-orange-600' :
-              nudge.urgency === 'moderate' ? 'text-yellow-600' : 'text-blue-600'
+              nudge.urgency === 'strong' ? 'text-orange-600 dark:text-orange-400' :
+              nudge.urgency === 'moderate' ? 'text-yellow-600 dark:text-yellow-400' : 'text-blue-600 dark:text-blue-400'
             )} />
           </div>
           
@@ -100,17 +100,17 @@ export function NudgeBanner({
                 
                 {/* Time saved indicator */}
                 <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="secondary" className="bg-white/60">
+                  <Badge variant="secondary" className="bg-white/60 dark:bg-slate-800/60">
                     <Clock className="h-3 w-3 mr-1" />
                     Save ~{formatHoursReclaimed(nudge.estimatedHoursSaved)}
                   </Badge>
-                  <Badge 
-                    variant="outline" 
+                  <Badge
+                    variant="outline"
                     className={cn(
-                      'bg-white/60',
-                      nudge.urgency === 'strong' ? 'border-orange-300 text-orange-700' :
-                      nudge.urgency === 'moderate' ? 'border-yellow-300 text-yellow-700' :
-                      'border-blue-300 text-blue-700'
+                      'bg-white/60 dark:bg-slate-800/60',
+                      nudge.urgency === 'strong' ? 'border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300' :
+                      nudge.urgency === 'moderate' ? 'border-yellow-300 dark:border-yellow-700 text-yellow-700 dark:text-yellow-300' :
+                      'border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300'
                     )}
                   >
                     {nudge.nudgeStrength}% async fit
@@ -156,22 +156,22 @@ export function NudgeBanner({
               <CollapsibleContent className="mt-3 space-y-4">
                 {/* Why we're suggesting async */}
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Why async might work better:
                   </p>
                   <ul className="space-y-1">
                     {nudge.reasons.slice(0, 3).map((reason, i) => (
-                      <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                        <span className="text-gray-400 mt-0.5">•</span>
+                      <li key={i} className="text-sm text-gray-600 dark:text-gray-300 flex items-start gap-2">
+                        <span className="text-gray-400 dark:text-gray-500 mt-0.5">•</span>
                         {reason.description}
                       </li>
                     ))}
                   </ul>
                 </div>
-                
+
                 {/* Suggested alternatives */}
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Async alternatives:
                   </p>
                   <div className="grid gap-2 sm:grid-cols-3">
@@ -180,28 +180,28 @@ export function NudgeBanner({
                         key={alt.type}
                         onClick={() => onSelectAlternative?.(alt)}
                         className={cn(
-                          'p-3 rounded-lg border bg-white/80 hover:bg-white',
+                          'p-3 rounded-lg border bg-white/80 hover:bg-white dark:bg-zinc-800/80 dark:hover:bg-zinc-800',
                           'transition-all text-left group',
-                          'hover:border-teal-300 hover:shadow-sm'
+                          'hover:border-teal-300 hover:shadow-sm dark:border-zinc-700 dark:hover:border-teal-600'
                         )}
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <span className={cn(
                             'p-1.5 rounded',
-                            'bg-gray-100 group-hover:bg-teal-50',
-                            'text-gray-600 group-hover:text-teal-600'
+                            'bg-gray-100 group-hover:bg-teal-50 dark:bg-zinc-700 dark:group-hover:bg-teal-900',
+                            'text-gray-600 group-hover:text-teal-600 dark:text-zinc-300 dark:group-hover:text-teal-400'
                           )}>
                             {alternativeIcons[alt.type]}
                           </span>
-                          <span className="font-medium text-sm">{alt.name}</span>
+                          <span className="font-medium text-sm dark:text-zinc-200">{alt.name}</span>
                         </div>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-zinc-400">
                           {alt.bestFor}
                         </p>
                         <div className="mt-2">
-                          <Badge 
-                            variant="secondary" 
-                            className="text-xs h-5 bg-gray-100"
+                          <Badge
+                            variant="secondary"
+                            className="text-xs h-5 bg-gray-100 dark:bg-zinc-700"
                           >
                             {alt.suitabilityScore}% match
                           </Badge>
@@ -283,7 +283,7 @@ export function NudgeHint({ nudge }: { nudge: NudgeResult }) {
   if (!nudge.shouldNudge || nudge.nudgeStrength < 40) return null
   
   return (
-    <p className="text-sm text-amber-600 flex items-center gap-1.5 mt-2">
+    <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1.5 mt-2">
       <Lightbulb className="h-4 w-4" />
       {nudge.primaryReason.description}
     </p>

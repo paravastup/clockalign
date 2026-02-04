@@ -310,15 +310,15 @@ export function MeetingForm({ teamId, onSuccess, onCancel }: MeetingFormProps) {
             >
               <div className={cn(
                 'flex items-center gap-2 px-3 py-2 rounded-lg transition-all',
-                isCurrent && 'bg-teal-50 text-teal-700',
-                isComplete && 'text-teal-600',
-                !isCurrent && !isComplete && 'text-gray-400'
+                isCurrent && 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300',
+                isComplete && 'text-teal-600 dark:text-teal-400',
+                !isCurrent && !isComplete && 'text-gray-400 dark:text-gray-500'
               )}>
                 <div className={cn(
                   'w-8 h-8 rounded-full flex items-center justify-center',
-                  isCurrent && 'bg-teal-600 text-white',
-                  isComplete && 'bg-teal-100',
-                  !isCurrent && !isComplete && 'bg-gray-100'
+                  isCurrent && 'bg-teal-600 dark:bg-teal-500 text-white',
+                  isComplete && 'bg-teal-100 dark:bg-teal-800',
+                  !isCurrent && !isComplete && 'bg-gray-100 dark:bg-gray-800'
                 )}>
                   {isComplete ? (
                     <Check className="h-4 w-4" />
@@ -333,7 +333,7 @@ export function MeetingForm({ teamId, onSuccess, onCancel }: MeetingFormProps) {
               {index < STEPS.length - 1 && (
                 <div className={cn(
                   'w-8 h-0.5 mx-2',
-                  isComplete ? 'bg-teal-300' : 'bg-gray-200'
+                  isComplete ? 'bg-teal-300 dark:bg-teal-600' : 'bg-gray-200 dark:bg-gray-700'
                 )} />
               )}
             </div>
@@ -427,7 +427,7 @@ export function MeetingForm({ teamId, onSuccess, onCancel }: MeetingFormProps) {
                 </div>
               </div>
               
-              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-slate-800">
                 <div>
                   <Label>Recurring Meeting</Label>
                   <p className="text-sm text-muted-foreground">
@@ -436,7 +436,7 @@ export function MeetingForm({ teamId, onSuccess, onCancel }: MeetingFormProps) {
                 </div>
                 <Switch
                   checked={formData.isRecurring}
-                  onCheckedChange={checked => 
+                  onCheckedChange={checked =>
                     setFormData(prev => ({ ...prev, isRecurring: checked }))
                   }
                 />
@@ -495,9 +495,9 @@ export function MeetingForm({ teamId, onSuccess, onCancel }: MeetingFormProps) {
                   <Label>Participants ({formData.participants.length})</Label>
                   <div className="space-y-2">
                     {formData.participants.map(p => (
-                      <div 
+                      <div
                         key={p.email}
-                        className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
+                        className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-slate-800"
                       >
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
@@ -555,8 +555,8 @@ export function MeetingForm({ teamId, onSuccess, onCancel }: MeetingFormProps) {
                       className={cn(
                         'w-full p-4 rounded-lg border-2 text-left transition-all',
                         selectedSlot?.utcHour === slot.utcHour
-                          ? 'border-teal-500 bg-teal-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/30 dark:border-teal-600'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                       )}
                     >
                       <div className="flex items-center justify-between mb-2">
@@ -604,7 +604,7 @@ export function MeetingForm({ teamId, onSuccess, onCancel }: MeetingFormProps) {
                 <h3 className="font-semibold text-lg">Ready to Schedule</h3>
               </div>
               
-              <div className="space-y-4 p-4 rounded-lg bg-gray-50">
+              <div className="space-y-4 p-4 rounded-lg bg-gray-50 dark:bg-slate-800">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Title</span>
                   <span className="font-medium">{formData.title}</span>

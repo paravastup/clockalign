@@ -87,11 +87,11 @@ const getRankIcon = (rank: number) => {
 const getTrendIcon = (trend: string) => {
   switch (trend) {
     case 'up':
-      return <TrendingUp className="w-4 h-4 text-emerald-600" />;
+      return <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
     case 'down':
-      return <TrendingDown className="w-4 h-4 text-red-500" />;
+      return <TrendingDown className="w-4 h-4 text-red-500 dark:text-red-400" />;
     default:
-      return <Minus className="w-4 h-4 text-slate-400" />;
+      return <Minus className="w-4 h-4 text-slate-400 dark:text-slate-500" />;
   }
 };
 
@@ -110,9 +110,9 @@ export function SacrificeLeaderboard() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[hsl(var(--brand-light))] border border-[hsl(var(--brand))]/20 mb-6">
-            <Trophy className="w-4 h-4 text-[hsl(var(--brand))]" />
-            <span className="text-sm text-[hsl(var(--brand))]">Sacrifice Score Leaderboard</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 dark:bg-teal-950/50 border border-teal-200 dark:border-teal-800 mb-6">
+            <Trophy className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+            <span className="text-sm text-teal-700 dark:text-teal-300">Sacrifice Score Leaderboard</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4 text-foreground">
             Fairness, <span className="text-gradient">visualized</span>
@@ -173,7 +173,7 @@ export function SacrificeLeaderboard() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.3, delay: 0.1 * index }}
                   className={`grid grid-cols-12 gap-4 p-4 items-center hover:bg-secondary/30 transition-colors ${
-                    index === 0 ? 'bg-[hsl(var(--brand-light))]' : ''
+                    index === 0 ? 'bg-teal-50 dark:bg-teal-950/30' : ''
                   }`}
                 >
                   {/* Rank */}

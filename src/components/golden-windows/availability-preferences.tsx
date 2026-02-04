@@ -431,8 +431,8 @@ function UnavailableHoursSelector({
             className={cn(
               'w-10 h-8 text-xs rounded border transition-all',
               selectedHours.includes(hour)
-                ? 'bg-gray-300 border-gray-400 text-gray-600'
-                : 'bg-white border-gray-200 hover:border-gray-300'
+                ? 'bg-gray-300 border-gray-400 text-gray-600 dark:bg-zinc-600 dark:border-zinc-500 dark:text-zinc-300'
+                : 'bg-white border-gray-200 hover:border-gray-300 dark:bg-zinc-800 dark:border-zinc-700 dark:hover:border-zinc-500 dark:text-zinc-200'
             )}
           >
             {hour}
@@ -519,7 +519,7 @@ function CustomEnergyCurveEditor({
       </div>
       
       {selectedHour !== null && (
-        <div className="p-3 border rounded-lg bg-white">
+        <div className="p-3 border rounded-lg bg-white dark:bg-zinc-800 dark:border-zinc-700">
           <Label className="text-sm mb-2 block">
             Energy at {formatHour(selectedHour)}
           </Label>

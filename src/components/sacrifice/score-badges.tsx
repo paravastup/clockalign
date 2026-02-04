@@ -329,13 +329,13 @@ interface QuickScoreProps {
 
 export function QuickScore({ points, className }: QuickScoreProps) {
   const getColor = () => {
-    if (points <= 1) return 'text-green-600'
-    if (points <= 3) return 'text-yellow-600'
-    if (points <= 5) return 'text-orange-600'
-    if (points <= 7) return 'text-red-600'
-    return 'text-purple-700'
+    if (points <= 1) return 'text-green-600 dark:text-green-400'
+    if (points <= 3) return 'text-yellow-600 dark:text-yellow-400'
+    if (points <= 5) return 'text-orange-600 dark:text-orange-400'
+    if (points <= 7) return 'text-red-600 dark:text-red-400'
+    return 'text-purple-700 dark:text-purple-400'
   }
-  
+
   return (
     <span className={cn('font-semibold', getColor(), className)}>
       {formatPoints(points)} pts
@@ -495,49 +495,49 @@ function getAchievementConfig(achievement: Achievement) {
       label: 'Early Bird',
       title: 'Early Bird Award',
       description: '10+ early morning meetings taken for the team',
-      colors: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+      colors: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700',
     },
     night_owl: {
       icon: Moon,
       label: 'Night Owl',
       title: 'Night Owl Award',
       description: '10+ late night meetings taken for the team',
-      colors: 'bg-purple-100 text-purple-700 border-purple-300',
+      colors: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700',
     },
     team_player: {
       icon: Award,
       label: 'Team Player',
       title: 'Team Player Award',
       description: 'Top 3 in team sacrifice score',
-      colors: 'bg-blue-100 text-blue-700 border-blue-300',
+      colors: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700',
     },
     fair_scheduler: {
       icon: Target,
       label: 'Fair Scheduler',
       title: 'Fair Scheduler Award',
       description: '90%+ of your meetings are in golden hours',
-      colors: 'bg-green-100 text-green-700 border-green-300',
+      colors: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700',
     },
     marathon: {
       icon: Zap,
       label: 'Marathon',
       title: 'Meeting Marathon',
       description: '5+ hours of meetings in a single day',
-      colors: 'bg-orange-100 text-orange-700 border-orange-300',
+      colors: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-700',
     },
     survivor: {
       icon: Shield,
       label: 'Survivor',
       title: 'Graveyard Survivor',
       description: '50+ lifetime graveyard points',
-      colors: 'bg-red-100 text-red-700 border-red-300',
+      colors: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700',
     },
     protector: {
       icon: Shield,
       label: 'Protector',
       title: 'Team Protector',
       description: 'Helped reduce team imbalance by taking bad slots',
-      colors: 'bg-cyan-100 text-cyan-700 border-cyan-300',
+      colors: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 border-cyan-300 dark:border-cyan-700',
     },
   }
   return configs[achievement]

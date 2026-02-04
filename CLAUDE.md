@@ -121,6 +121,21 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 # Stripe Price IDs (create in Stripe Dashboard > Products)
 STRIPE_PRICE_ID_MONTHLY=price_...
 STRIPE_PRICE_ID_YEARLY=price_...
+
+# Email (Resend - get from https://resend.com/api-keys)
+RESEND_API_KEY=re_...
+
+# Google Calendar (get from https://console.cloud.google.com)
+GOOGLE_CLIENT_ID=...apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=...
+NEXT_PUBLIC_APP_URL=http://localhost:3000  # Production: https://clockalign.app
+
+# Analytics (PostHog - get from https://app.posthog.com/project/settings)
+NEXT_PUBLIC_POSTHOG_KEY=phc_...
+NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
+
+# Security (optional - uses SUPABASE_SERVICE_ROLE_KEY as fallback)
+OAUTH_STATE_SECRET=your-32-char-random-string  # For HMAC-signing OAuth state
 ```
 
 ## Stripe Integration
@@ -188,3 +203,123 @@ Tests are in `__tests__/` directory using Vitest:
 - `sacrifice-score.test.ts` - Unit tests for scoring algorithm
 - `golden-windows.test.ts` - Overlap detection tests
 - `e2e/flows.test.ts` - Integration tests
+
+## GTM & Viral Mechanics (Go-To-Market)
+
+### Public Lead Magnets
+- `/calculator` - Standalone Sacrifice Score Calculator (no auth, shareable results)
+- `/finder` - Fair Time Finder with social sharing
+
+### Shareable Components
+
+**Sacrifice Score Card** (`src/components/sacrifice/shareable-score-card.tsx`):
+- Branded visual card showing participant scores
+- Share to Twitter, LinkedIn, or clipboard
+- Tracks shares via PostHog analytics
+
+**Meeting Avoided Badge** (`src/components/async-nudge/meeting-avoided-badge.tsx`):
+- Celebration component when users choose async
+- "This meeting was a doc 🎉" shareable badge
+- Confetti animation for positive reinforcement
+
+### Analytics Events (PostHog)
+
+GTM-specific events in `src/lib/analytics/posthog.ts`:
+```typescript
+SCORE_CARD_SHARED      // platform: twitter/linkedin/clipboard/native
+CALCULATOR_USED
+CALCULATOR_SIGNUP_CLICKED
+MEETING_AVOIDED_SHARED
+LANDING_CTA_CLICKED    // cta_type: hero_primary/hero_secondary/pricing
+PRICING_PAGE_VIEWED    // ref: referral code if present
+```
+
+### Key GTM Metrics to Track
+- K-factor (viral coefficient) via share events
+- Calculator → Signup conversion rate
+- "Hours Reclaimed" as engagement metric
+- Referral code usage
+
+### Positioning
+- One-liner: "Calendly schedules a meeting. ClockAlign schedules a team."
+- Supporting: "Stop making Tokyo take the midnight calls."
+
+## Security Utilities
+
+The `src/lib/security/` directory contains security utilities for common web vulnerabilities:
+
+### URL Validation (`url-validation.ts`)
+- `getCanonicalOrigin()` - Returns trusted app origin from env var, never from request
+- `isValidInternalPath(path)` - Validates redirect paths to prevent open redirects
+- `sanitizeRedirectPath(path, default)` - Returns safe path or default
+- `buildRedirectUrl(path)` - Builds full URL with canonical origin
+
+### Cryptographic Code Generation (`code-generation.ts`)
+- `generateSecureCode(prefix, length, charset)` - CSPRNG-based code generation
+- `generateInviteCode()` - 8-char invite codes
+- `generateReferralCode()` - REF_ prefixed codes
+- `generateOAuthNonce()` - 32-char hex nonces
+- `createStateSignature(data, secret)` - HMAC-SHA256 signing
+- `verifyStateSignature(data, sig, secret)` - Timing-safe verification
+
+**Always use these utilities instead of:**
+- Trusting `request.headers.get('origin')` for redirects
+- Using `Math.random()` for security-sensitive codes
+- Manual redirect path validation
+
+### Calendar Token Management (`src/lib/calendar/tokens.ts`)
+
+OAuth tokens are stored in the dedicated `calendar_tokens` table (not in `users.preferences`).
+
+**Functions:**
+- `getCalendarTokens(supabase, userId)` - Read tokens, auto-refresh if expired
+- `saveCalendarTokens(supabase, userId, tokens)` - Upsert tokens via RPC
+- `hasCalendarConnection(supabase, userId?)` - Check connection status (returns boolean, never tokens)
+- `revokeCalendarConnection(supabase)` - Delete tokens on disconnect
+
+**Always use these functions instead of:**
+- Reading tokens from `users.preferences.google_calendar`
+- Storing tokens in the `users` table
+- Using `SELECT *` on users table (use explicit column list)
+
+**Database:**
+- `calendar_tokens` table with RLS (users can only access own tokens)
+- `upsert_calendar_token()` RPC - SECURITY DEFINER function for token updates
+- `has_calendar_connection()` RPC - Safe boolean check without exposing tokens
+
+## Implementation Status
+
+### Completed
+- ✅ **Security remediation** (2026-02-03): Implemented 10-point security audit fixes:
+  - Created `src/lib/security/url-validation.ts` - Open redirect prevention
+  - Created `src/lib/security/code-generation.ts` - Cryptographic code generation
+  - Fixed open redirects in auth callbacks, Stripe routes, calendar OAuth
+  - Added HMAC-signed OAuth state with nonce cookies for CSRF protection
+  - Replaced all `Math.random()` code generation with `crypto.randomBytes()`
+  - Added security headers in `next.config.mjs` (CSP, HSTS, X-Frame-Options)
+  - Created `supabase/migrations/00005_fix_invite_rls.sql` - Fixed overly permissive team_invites RLS
+  - Created `supabase/migrations/00006_calendar_tokens.sql` - Separate token storage table
+- ✅ **Fake reviews removed** (2026-02-03): Removed fake testimonial from AsyncNudge.tsx landing component
+- ✅ **Auth middleware created** (2026-02-03): Added `/middleware.ts` for Supabase session refresh on every request
+- ✅ **Finder centering fixed** (2026-02-03): Fixed scroll centering calculation in `/finder` page "Today" button and scroll functions
+- ✅ **Dark mode legibility fixed** (2026-02-03): Added dark: variants to 15+ files for proper contrast:
+  - `meeting-form.tsx` - Progress indicator, recurring toggle, participant cards, time slots, confirmation
+  - `score-badges.tsx` - QuickScore colors, achievement badges
+  - `leaderboard.tsx` - Fairness alerts, status row badges
+  - `heatmap.tsx` & `best-times.tsx` - Golden score labels, time category cards, sharpness backgrounds
+  - `nudge-banner.tsx` - Icon backgrounds, urgency badges, reasons list
+  - Landing components: `Scheduler.tsx`, `GoldenWindows.tsx`, `AsyncNudge.tsx`, `SacrificeLeaderboard.tsx`
+- ✅ **Calendar tokens wired to dedicated table** (2026-02-03): P0 security fix to isolate OAuth tokens:
+  - Created `src/lib/calendar/tokens.ts` - Centralized token management with auto-refresh
+  - Updated `callback/route.ts` to store tokens via `saveCalendarTokens()` RPC
+  - Updated `events/route.ts` and `availability/route.ts` to use `getCalendarTokens()`
+  - Fixed `settings/page.tsx` to select specific columns and use `hasCalendarConnection()` RPC
+  - Created `00007_cleanup_calendar_preferences.sql` to remove old tokens from preferences
+  - Added `calendar_tokens` table and RPC function types to `database.ts`
+
+### Roadmap (see TRACKER.md for full plan)
+- Phase 1.5.1: Google Calendar Write Integration (HIGH priority)
+- Phase 1.5.2: Auto-Rotation for Recurring Meetings (HIGH priority)
+- Phase 1.5.3: Custom Energy Curves (MEDIUM priority)
+- Phase 1.5.4: Karma Reports (MEDIUM priority)
+- Phase 2.0.1: Slack Integration (HIGH priority)
