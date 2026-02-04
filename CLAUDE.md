@@ -31,7 +31,7 @@ vercel           # Deploy preview
 
 ## Architecture Overview
 
-### Next.js 14 App Router Structure
+### Next.js 16 App Router Structure (Turbopack)
 
 ```
 src/app/
@@ -316,6 +316,14 @@ OAuth tokens are stored in the dedicated `calendar_tokens` table (not in `users.
   - Fixed `settings/page.tsx` to select specific columns and use `hasCalendarConnection()` RPC
   - Created `00007_cleanup_calendar_preferences.sql` to remove old tokens from preferences
   - Added `calendar_tokens` table and RPC function types to `database.ts`
+- ✅ **Security remediation: Secrets & Vulnerabilities** (2026-02-04):
+  - **P0**: Deleted local env files with production secrets (`.env.production.local`, `.env.local`, `.env.vercel.tmp`)
+  - **P0**: Rotated exposed Stripe and Supabase keys in production
+  - **P2**: Upgraded Next.js 14.2.35 → 16.1.6 (fixes GHSA-9g9p-9gw9-jx7f, GHSA-h25m-26qc-wcjf DoS vulnerabilities)
+  - **P2**: Upgraded ESLint 8 → 9 with flat config (`eslint.config.mjs`)
+  - **P2**: Fixed glob 10.3.10 → 11.x (fixes GHSA-5j98-mcp5-4vw2 command injection)
+  - Migrated from Webpack to Turbopack (Next.js 16 default bundler)
+  - Removed deprecated `eslint` and `webpack` keys from next.config.mjs
 
 ### Roadmap (see TRACKER.md for full plan)
 - Phase 1.5.1: Google Calendar Write Integration (HIGH priority)

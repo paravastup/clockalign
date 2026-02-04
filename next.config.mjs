@@ -1,24 +1,15 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    // Temporarily ignore ESLint errors during build due to eslint-config-next module issue
-    ignoreDuringBuilds: true,
-  },
+  // Use Turbopack (default in Next.js 16)
+  // Path aliases (@/*) are read from tsconfig.json automatically
+  turbopack: {},
+
   allowedDevOrigins: [
     'sparing-semigovernmentally-brandi.ngrok-free.dev',
     '*.ngrok-free.dev',
     '*.ngrok.io',
   ],
-  webpack: (config) => {
-    config.resolve.alias['@'] = path.join(__dirname, 'src');
-    return config;
-  },
+
   // Security headers
   async headers() {
     return [
@@ -58,6 +49,7 @@ const nextConfig = {
       },
     ];
   },
+
   // Redirect clockalign.app to clockalign.com for consistent auth cookies
   async redirects() {
     return [
