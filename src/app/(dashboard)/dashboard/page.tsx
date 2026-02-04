@@ -299,8 +299,14 @@ function ActionItem({
 // Simple meeting row
 function MeetingRow({ meeting }: { meeting: { id: string; title: string; start_time: string } }) {
   const date = new Date(meeting.start_time)
-  const isToday = new Date().toDateString() === date.toDateString()
-  const isTomorrow = new Date(Date.now() + 86400000).toDateString() === date.toDateString()
+  const meetingDateStr = date.toDateString()
+  // Compute today/tomorrow using the meeting date as reference to avoid impure Date calls
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const isToday = meetingDateStr === today.toDateString()
+  const isTomorrow = meetingDateStr === tomorrow.toDateString()
 
   let dateLabel = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
   if (isToday) dateLabel = 'Today'

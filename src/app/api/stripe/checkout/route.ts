@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       customerId = customer.id
 
       // Store customer ID in database
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       await (supabase.from('users') as any)
         .update({ stripe_customer_id: customerId })
         .eq('id', user.id)

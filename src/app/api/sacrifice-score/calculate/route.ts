@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Insert/update scores in database
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { error: insertError } = await (supabase as any)
       .from('sacrifice_scores')
       .upsert(
@@ -197,7 +197,7 @@ export async function POST(request: NextRequest) {
     )
     
     // Update meeting slot with total sacrifice
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await (supabase as any)
       .from('meeting_slots')
       .update({

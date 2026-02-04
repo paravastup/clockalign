@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch meeting details
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: meeting, error: meetingError } = await (supabase.from('meetings') as any)
       .select('*')
       .eq('id', meetingId)
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch the confirmed slot
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: slot, error: slotError } = await (supabase.from('meeting_slots') as any)
       .select('*')
       .eq('id', slotId)
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch all participants
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: participants, error: participantsError } = await (supabase.from('meeting_participants') as any)
       .select('*')
       .eq('meeting_id', meetingId) as { data: Participant[] | null; error: Error | null };
@@ -104,14 +104,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch organizer details
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: organizer } = await (supabase.from('users') as any)
       .select('name, email')
       .eq('id', user.id)
       .single() as { data: { name: string | null; email: string } | null };
 
     // Fetch sacrifice scores for this slot
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: sacrificeScores } = await (supabase.from('sacrifice_scores') as any)
       .select('participant_id, points')
       .eq('meeting_slot_id', slotId) as { data: SacrificeScore[] | null };
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
 
     // Update slot status to confirmed if not already
     if (slot.status !== 'confirmed') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       await (supabase.from('meeting_slots') as any)
         .update({ status: 'confirmed' })
         .eq('id', slotId);

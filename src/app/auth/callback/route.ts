@@ -45,7 +45,7 @@ export async function GET(request: Request) {
 
     if (user) {
       // Ensure user exists in public.users table (upsert)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const { error: upsertError } = await (supabase.from('users') as any).upsert({
         id: user.id,
         email: user.email,

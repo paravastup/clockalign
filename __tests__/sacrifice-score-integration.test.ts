@@ -205,9 +205,9 @@ describe('Sacrifice Score Integration', () => {
       expect(leaderboard[2].userName).toBe('Alice')
       expect(leaderboard[2].totalPoints).toBe(6)
       
-      // Priya should have critical fairness status (24 / 12.67 avg = 1.9x, actually 24 / (38/3) = 1.9x)
-      // Actually avg = (24+8+6)/3 = 12.67, Priya has 24/12.67 = 1.9x - high_sacrifice
-      expect(leaderboard[0].fairnessStatus).toBe('high_sacrifice')
+      // Priya: avg = (24+8+6)/3 = 12.67, Priya has 24/12.67 = 1.9x
+      // 1.9x is > 1.3x (above_average) but < 2x (high_sacrifice)
+      expect(leaderboard[0].fairnessStatus).toBe('above_average')
     })
     
     it('should detect improving vs worsening trends', () => {

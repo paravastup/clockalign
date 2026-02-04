@@ -164,7 +164,7 @@ describe('Score Calculation', () => {
       })
       // 5 * 2 * 1.5 * 0.8 = 12
       expect(result.points).toBe(12)
-      expect(result.multipliers.total).toBe(2.4) // 2 * 1.5 * 0.8
+      expect(result.multipliers.total).toBeCloseTo(2.4) // 2 * 1.5 * 0.8
     })
     
     it('should include breakdown string', () => {

@@ -129,7 +129,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     ? new Date(firstItem.current_period_end * 1000).toISOString()
     : null
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   await (getSupabaseAdmin().from('users') as any)
     .update({
       stripe_customer_id: customerId,
@@ -165,7 +165,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     : null
 
   // Find user by Stripe customer ID
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: user, error } = await (getSupabaseAdmin().from('users') as any)
     .select('id')
     .eq('stripe_customer_id', customerId)
@@ -175,7 +175,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     // Try to find by metadata
     const userId = subscription.metadata?.supabase_user_id
     if (userId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       await (getSupabaseAdmin().from('users') as any)
         .update({
           subscription_id: subscription.id,
@@ -195,7 +195,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     return
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   await (getSupabaseAdmin().from('users') as any)
     .update({
       subscription_id: subscription.id,
@@ -217,7 +217,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   await (getSupabaseAdmin().from('users') as any)
     .update({
       subscription_status: 'canceled',
@@ -235,7 +235,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   await (getSupabaseAdmin().from('users') as any)
     .update({
       subscription_status: 'past_due',
@@ -256,7 +256,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   // Only update if this is for a subscription (check via parent.subscription_details)
   const hasSubscription = invoice.parent?.subscription_details?.subscription
   if (hasSubscription) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await (getSupabaseAdmin().from('users') as any)
       .update({
         subscription_status: 'active',

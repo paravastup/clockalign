@@ -84,7 +84,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       status: 'pending',
       expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: invite, error } = await (supabase.from('team_invites') as any)
       .insert(inviteData)
       .select()

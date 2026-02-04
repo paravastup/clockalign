@@ -50,13 +50,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch meeting and slot details
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: meeting } = await (supabase.from('meetings') as any)
       .select('*')
       .eq('id', meetingId)
       .single() as { data: { title: string; description: string | null } | null };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: slot } = await (supabase.from('meeting_slots') as any)
       .select('*')
       .eq('id', slotId)
@@ -70,13 +70,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch participants for attendees
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: participants } = await (supabase.from('meeting_participants') as any)
       .select('email')
       .eq('meeting_id', meetingId) as { data: Array<{ email: string }> | null };
 
     // Get organizer's timezone
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: organizer } = await (supabase.from('users') as any)
       .select('timezone')
       .eq('id', user.id)
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Store the Google event ID in the slot
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await (supabase.from('meeting_slots') as any)
       .update({ google_event_id: eventId })
       .eq('id', slotId);

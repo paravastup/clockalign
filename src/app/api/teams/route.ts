@@ -66,7 +66,7 @@ export async function POST(request: Request) {
     }
 
     // Create the team
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: team, error: teamError } = await (supabase.from('teams') as any)
       .insert({
         name: name.trim(),
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     }
 
     // Add the creator as owner
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { error: memberError } = await (supabase.from('team_members') as any)
       .insert({
         team_id: team.id,
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
         expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
       }))
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       await (supabase.from('team_invites') as any).insert(inviteRecords)
     }
 

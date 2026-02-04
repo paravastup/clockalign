@@ -77,7 +77,7 @@ export async function GET() {
     }
 
     // Save the new referral code
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { error: updateError } = await (supabase.from('users') as any)
       .update({ referral_code: newCode })
       .eq('id', user.id)

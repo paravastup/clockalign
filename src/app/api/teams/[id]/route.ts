@@ -89,7 +89,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     if (name) updates.name = name.trim()
     if (settings) updates.settings = settings
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: team, error } = await (supabase as any)
       .from('teams')
       .update(updates)

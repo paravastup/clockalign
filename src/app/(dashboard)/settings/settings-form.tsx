@@ -62,7 +62,7 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
     setLoading(true)
     
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const { error } = await (supabase.from('users') as any).upsert({
         id: formData.id,
         email: formData.email,

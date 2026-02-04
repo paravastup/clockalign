@@ -133,9 +133,10 @@ describe('E2E: Complete Meeting Scheduling Flow', () => {
       const leaderboard = calculateLeaderboard(scores, users)
       
       // Carol should be ranked #1 (most sacrifice)
+      // Scores: 35, 10, 5 = avg 16.67, Carol has 35/16.67 = 2.1x (> 2x = high_sacrifice)
       expect(leaderboard[0].userId).toBe('user-3')
       expect(leaderboard[0].totalPoints).toBe(35)
-      expect(leaderboard[0].fairnessStatus).toBe('critical')
+      expect(leaderboard[0].fairnessStatus).toBe('high_sacrifice')
       
       // Bob should be ranked last (least sacrifice)
       expect(leaderboard[2].userId).toBe('user-2')

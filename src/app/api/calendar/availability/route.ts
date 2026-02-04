@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     const targetUserIds = userIds || [user.id];
 
     // Fetch user data
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: usersData } = await (supabase.from('users') as any)
       .select('id, email, timezone, preferences')
       .in('id', targetUserIds);
